@@ -1,0 +1,24 @@
+NAME
+====
+
+motd - message of the day
+
+DESCRIPTION
+===========
+
+The contents of */etc/motd* are displayed by **login**\ (1) after a
+successful login but just before it executes the login shell.
+
+The abbreviation "motd" stands for "message of the day", and this file
+has been traditionally used for exactly that (it requires much less disk
+space than mail to all users).
+
+FILES
+=====
+
+*/etc/motd*
+
+SEE ALSO
+========
+
+**login**\ (1), **issue**\ (5)

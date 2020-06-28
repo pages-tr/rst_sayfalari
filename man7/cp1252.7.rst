@@ -1,0 +1,31 @@
+NAME
+====
+
+cp1252 - CP 1252 character set encoded in octal, decimal, and
+hexadecimal
+
+DESCRIPTION
+===========
+
+The Windows Code Pages include several 8-bit extensions to the ASCII
+character set (also known as ISO 646-IRV). CP 1252 encodes the
+characters used in many West European languages.
+
+CP 1252 characters
+------------------
+
+The following table displays the characters in CP 1252 that are
+printable and unlisted in the **ascii**\ (7) manual page.
+
+TABLE
+
+NOTES
+=====
+
+CP 1252 is also known as Windows-1252.
+
+SEE ALSO
+========
+
+**ascii**\ (7), **charsets**\ (7), **cp1251**\ (7), **iso_8859-1**\ (7),
+**iso_8859-15**\ (7), **utf-8**\ (7)

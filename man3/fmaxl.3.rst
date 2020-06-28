@@ -1,0 +1,67 @@
+NAME
+====
+
+fmax, fmaxf, fmaxl - determine maximum of two floating-point numbers
+
+SYNOPSIS
+========
+
+**#include <math.h>**
+
+**double fmax(double**\ *x*\ **, double**\ *y*\ **);** **float
+fmaxf(float**\ *x*\ **, float**\ *y*\ **);** **long double fmaxl(long
+double**\ *x*\ **, long double**\ *y*\ **);**
+
+Link with *-lm*.
+
+Feature Test Macro Requirements for glibc (see
+**feature_test_macros**\ (7)):
+
+**fmax**\ (), **fmaxf**\ (), **fmaxl**\ ():
+
+   \_ISOC99_SOURCE \|\| \_POSIX_C_SOURCE >= 200112L
+
+DESCRIPTION
+===========
+
+These functions return the larger value of *x* and *y*.
+
+RETURN VALUE
+============
+
+These functions return the maximum of *x* and *y*.
+
+If one argument is a NaN, the other argument is returned.
+
+If both arguments are NaN, a NaN is returned.
+
+ERRORS
+======
+
+No errors occur.
+
+VERSIONS
+========
+
+These functions first appeared in glibc in version 2.1.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+========================================== ============= =======
+Interface                                  Attribute     Value
+**fmax**\ (), **fmaxf**\ (), **fmaxl**\ () Thread safety MT-Safe
+========================================== ============= =======
+
+CONFORMING TO
+=============
+
+C99, POSIX.1-2001, POSIX.1-2008.
+
+SEE ALSO
+========
+
+**fdim**\ (3), **fmin**\ (3)

@@ -1,0 +1,56 @@
+NAME
+====
+
+pow10, pow10f, pow10l - base-10 power functions
+
+SYNOPSIS
+========
+
+::
+
+   #define _GNU_SOURCE /* See feature_test_macros(7) */
+   #include <math.h>
+
+   double pow10(double x);
+   float pow10f(float x);
+   long double pow10l(long double x);
+
+Link with *-lm*.
+
+DESCRIPTION
+===========
+
+These functions return the value of 10 raised to the power *x*.
+
+**Note well**: These functions perform exactly the same task as the
+functions described in **exp10**\ (3), with the difference that the
+latter functions are now standardized in TS 18661-4:2015. Those latter
+functions should be used in preference to the functions described in
+this page.
+
+VERSIONS
+========
+
+These functions first appeared in glibc in version 2.1. Since glibc
+2.27, the use of these functions in new programs is no longer supported.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+============================================= ============= =======
+Interface                                     Attribute     Value
+**pow10**\ (), **pow10f**\ (), **pow10l**\ () Thread safety MT-Safe
+============================================= ============= =======
+
+CONFORMING TO
+=============
+
+This functions are nonstandard GNU extensions.
+
+SEE ALSO
+========
+
+**exp10**\ (3), **pow**\ (3)

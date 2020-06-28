@@ -1,0 +1,50 @@
+NAME
+====
+
+cpow, cpowf, cpowl - complex power function
+
+SYNOPSIS
+========
+
+::
+
+   #include <complex.h>
+
+   double complex cpow(double complex x, complex double z);
+   float complex cpowf(float complex x, complex float z);
+   long double complex cpowl(long double complex x,
+    complex long double z);
+
+   Link with -lm.
+
+DESCRIPTION
+===========
+
+These functions calculate *x* raised to the power *z* (with a branch cut
+for *x* along the negative real axis.)
+
+VERSIONS
+========
+
+These functions first appeared in glibc in version 2.1.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+========================================== ============= =======
+Interface                                  Attribute     Value
+**cpow**\ (), **cpowf**\ (), **cpowl**\ () Thread safety MT-Safe
+========================================== ============= =======
+
+CONFORMING TO
+=============
+
+C99, POSIX.1-2001, POSIX.1-2008.
+
+SEE ALSO
+========
+
+**cabs**\ (3), **pow**\ (3), **complex**\ (7)

@@ -1,0 +1,82 @@
+NAME
+====
+
+fdim, fdimf, fdiml - positive difference
+
+SYNOPSIS
+========
+
+**#include <math.h>**
+
+| **double fdim(double**\ *x*\ **, double**\ *y*\ **);**
+| **float fdimf(float**\ *x*\ **, float**\ *y*\ **);**
+| **long double fdiml(long double**\ *x*\ **, long double**\ *y*\ **);**
+
+Link with *-lm*.
+
+Feature Test Macro Requirements for glibc (see
+**feature_test_macros**\ (7)):
+
+**fdimf**\ (), **fdiml**\ ():
+
+   \_ISOC99_SOURCE \|\| \_POSIX_C_SOURCE >= 200112L
+
+DESCRIPTION
+===========
+
+These functions return the positive difference, max(*x*-*y*,0), between
+their arguments.
+
+RETURN VALUE
+============
+
+On success, these functions return the positive difference.
+
+If *x* or *y* is a NaN, a NaN is returned.
+
+If the result overflows, a range error occurs, and the functions return
+**HUGE_VAL**, **HUGE_VALF**, or **HUGE_VALL**, respectively.
+
+ERRORS
+======
+
+See **math_error**\ (7) for information on how to determine whether an
+error has occurred when calling these functions.
+
+The following errors can occur:
+
+Range error: result overflow
+   *errno* is set to **ERANGE**. An overflow floating-point exception
+   (**FE_OVERFLOW**) is raised.
+
+VERSIONS
+========
+
+These functions first appeared in glibc in version 2.1.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+========================================== ============= =======
+Interface                                  Attribute     Value
+**fdim**\ (), **fdimf**\ (), **fdiml**\ () Thread safety MT-Safe
+========================================== ============= =======
+
+CONFORMING TO
+=============
+
+C99, POSIX.1-2001, POSIX.1-2008.
+
+BUGS
+====
+
+Before glibc version 2.24 on certain architectures (e.g., x86, but not
+x86_64) these functions did not set *errno*.
+
+SEE ALSO
+========
+
+**fmax**\ (3)

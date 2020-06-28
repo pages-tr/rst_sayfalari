@@ -1,0 +1,55 @@
+NAME
+====
+
+casinh, casinhf, casinhl - complex arc sine hyperbolic
+
+SYNOPSIS
+========
+
+**#include <complex.h>**
+
+| **double complex casinh(double complex**\ *z*\ **);**
+| **float complex casinhf(float complex**\ *z*\ **);**
+| **long double complex casinhl(long double complex**\ *z*\ **);**
+
+Link with *-lm*.
+
+DESCRIPTION
+===========
+
+These functions calculate the complex arc hyperbolic sine of *z*. If *y
+= casinh(z)*, then *z = csinh(y)*. The imaginary part of *y* is chosen
+in the interval [-pi/2,pi/2].
+
+One has:
+
+::
+
+       casinh(z) = clog(z + csqrt(z * z + 1))
+
+VERSIONS
+========
+
+These functions first appeared in glibc in version 2.1.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+================================================ ============= =======
+Interface                                        Attribute     Value
+**casinh**\ (), **casinhf**\ (), **casinhl**\ () Thread safety MT-Safe
+================================================ ============= =======
+
+CONFORMING TO
+=============
+
+C99, POSIX.1-2001, POSIX.1-2008.
+
+SEE ALSO
+========
+
+**asinh**\ (3), **cabs**\ (3), **cimag**\ (3), **csinh**\ (3),
+**complex**\ (7)

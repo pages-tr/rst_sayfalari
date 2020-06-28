@@ -1,0 +1,73 @@
+NAME
+====
+
+iswpunct - test for punctuation or symbolic wide character
+
+SYNOPSIS
+========
+
+::
+
+   #include <wctype.h>
+
+   int iswpunct(wint_t wc);
+
+DESCRIPTION
+===========
+
+The **iswpunct**\ () function is the wide-character equivalent of the
+**ispunct**\ (3) function. It tests whether *wc* is a wide character
+belonging to the wide-character class "punct".
+
+The wide-character class "punct" is a subclass of the wide-character
+class "graph", and therefore also a subclass of the wide-character class
+"print".
+
+The wide-character class "punct" is disjoint from the wide-character
+class "alnum" and therefore also disjoint from its subclasses "alpha",
+"upper", "lower", "digit", "xdigit".
+
+Being a subclass of the wide-character class "print", the wide-character
+class "punct" is disjoint from the wide-character class "cntrl".
+
+Being a subclass of the wide-character class "graph", the wide-character
+class "punct" is disjoint from the wide-character class "space" and its
+subclass "blank".
+
+RETURN VALUE
+============
+
+The **iswpunct**\ () function returns nonzero if *wc* is a
+wide-character belonging to the wide-character class "punct". Otherwise,
+it returns zero.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+================ ============= ==============
+Interface        Attribute     Value
+**iswpunct**\ () Thread safety MT-Safe locale
+================ ============= ==============
+
+CONFORMING TO
+=============
+
+POSIX.1-2001, POSIX.1-2008, C99.
+
+NOTES
+=====
+
+The behavior of **iswpunct**\ () depends on the **LC_CTYPE** category of
+the current locale.
+
+This function's name is a misnomer when dealing with Unicode characters,
+because the wide-character class "punct" contains both punctuation
+characters and symbol (math, currency, etc.) characters.
+
+SEE ALSO
+========
+
+**ispunct**\ (3), **iswctype**\ (3)

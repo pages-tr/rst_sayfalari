@@ -1,0 +1,78 @@
+NAME
+====
+
+fgetgrent - get group file entry
+
+SYNOPSIS
+========
+
+::
+
+   #include <stdio.h>
+   #include <sys/types.h>
+   #include <grp.h>
+
+   struct group *fgetgrent(FILE *stream);
+
+Feature Test Macro Requirements for glibc (see
+**feature_test_macros**\ (7)):
+
+**fgetgrent**\ (): Since glibc 2.19: \_DEFAULT_SOURCE Glibc 2.19 and
+earlier: \_SVID_SOURCE
+
+DESCRIPTION
+===========
+
+The **fgetgrent**\ () function returns a pointer to a structure
+containing the group information from the file referred to by *stream*.
+The first time it is called it returns the first entry; thereafter, it
+returns successive entries. The file referred to by *stream* must have
+the same format as */etc/group* (see **group**\ (5)).
+
+The *group* structure is defined in *<grp.h>* as follows:
+
+::
+
+   struct group {
+       char   *gr_name;        /* group name */
+       char   *gr_passwd;      /* group password */
+       gid_t   gr_gid;         /* group ID */
+       char  **gr_mem;         /* NULL-terminated array of pointers
+                                  to names of group members */
+   };
+
+RETURN VALUE
+============
+
+The **fgetgrent**\ () function returns a pointer to a *group* structure,
+or NULL if there are no more entries or an error occurs. In the event of
+an error, *errno* is set to indicate the cause.
+
+ERRORS
+======
+
+**ENOMEM**
+   Insufficient memory to allocate *group* structure.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+================= ============= ========================
+Interface         Attribute     Value
+**fgetgrent**\ () Thread safety MT-Unsafe race:fgetgrent
+================= ============= ========================
+
+CONFORMING TO
+=============
+
+SVr4.
+
+SEE ALSO
+========
+
+**endgrent**\ (3), **fgetgrent_r**\ (3), **fopen**\ (3),
+**getgrent**\ (3), **getgrgid**\ (3), **getgrnam**\ (3),
+**putgrent**\ (3), **setgrent**\ (3), **group**\ (5)

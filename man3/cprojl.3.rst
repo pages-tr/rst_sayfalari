@@ -1,0 +1,56 @@
+NAME
+====
+
+cproj, cprojf, cprojl - project into Riemann Sphere
+
+SYNOPSIS
+========
+
+**#include <complex.h>**
+
+| **double complex cproj(double complex**\ *z*\ **);**
+| **float complex cprojf(float complex**\ *z*\ **);**
+| **long double complex cprojl(long double complex**\ *z*\ **);**
+
+Link with *-lm*.
+
+DESCRIPTION
+===========
+
+These functions project a point in the plane onto the surface of a
+Riemann Sphere, the one-point compactification of the complex plane.
+Each finite point *z* projects to *z* itself. Every complex infinite
+value is projected to a single infinite value, namely to positive
+infinity on the real axis.
+
+VERSIONS
+========
+
+These functions first appeared in glibc in version 2.1.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+============================================= ============= =======
+Interface                                     Attribute     Value
+**cproj**\ (), **cprojf**\ (), **cprojl**\ () Thread safety MT-Safe
+============================================= ============= =======
+
+CONFORMING TO
+=============
+
+C99, POSIX.1-2001, POSIX.1-2008.
+
+NOTES
+=====
+
+In glibc 2.11 and earlier, the implementation does something different
+(a *stereographic* projection onto a Riemann Sphere).
+
+SEE ALSO
+========
+
+**cabs**\ (3), **complex**\ (7)

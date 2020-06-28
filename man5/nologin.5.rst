@@ -1,0 +1,22 @@
+NAME
+====
+
+nologin - prevent unprivileged users from logging into the system
+
+DESCRIPTION
+===========
+
+If the file */etc/nologin* exists and is readable, **login**\ (1) will
+allow access only to root. Other users will be shown the contents of
+this file and their logins will be refused. This provides a simple way
+of temporarily disabling all unprivileged logins.
+
+FILES
+=====
+
+*/etc/nologin*
+
+SEE ALSO
+========
+
+**login**\ (1), **shutdown**\ (8)

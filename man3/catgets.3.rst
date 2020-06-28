@@ -1,0 +1,66 @@
+NAME
+====
+
+catgets - get message from a message catalog
+
+SYNOPSIS
+========
+
+::
+
+   #include <nl_types.h>
+
+   char *catgets(nl_catd catalog, int set_number",int"message_number,
+    const char *message);
+
+DESCRIPTION
+===========
+
+**catgets**\ () reads the message *message_number*, in set *set_number*,
+from the message catalog identified by *catalog*, where *catalog* is a
+catalog descriptor returned from an earlier call to **catopen**\ (3).
+The fourth argument, *message*, points to a default message string which
+will be returned by **catgets**\ () if the identified message catalog is
+not currently available. The message-text is contained in an internal
+buffer area and should be copied by the application if it is to be saved
+or modified. The return string is always terminated with a null byte
+('\0').
+
+RETURN VALUE
+============
+
+On success, **catgets**\ () returns a pointer to an internal buffer area
+containing the null-terminated message string. On failure,
+**catgets**\ () returns the value *message*.
+
+ATTRIBUTES
+==========
+
+For an explanation of the terms used in this section, see
+**attributes**\ (7).
+
+=============== ============= =======
+Interface       Attribute     Value
+**catgets**\ () Thread safety MT-Safe
+=============== ============= =======
+
+CONFORMING TO
+=============
+
+POSIX.1-2001, POSIX.1-2008.
+
+NOTES
+=====
+
+The **catgets**\ () function is available only in libc.so.4.4.4c and
+above. The Jan 1987 X/Open Portability Guide specifies a more subtle
+error return: *message* is returned if the message catalog specified by
+*catalog* is not available, while an empty string is returned when the
+message catalog is available but does not contain the specified message.
+These two possible error returns seem to be discarded in SUSv2 in favor
+of always returning *message*.
+
+SEE ALSO
+========
+
+**catopen**\ (3), **setlocale**\ (3)
