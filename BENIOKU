@@ -1,0 +1,7 @@
+reStructuredText formatındaki kılvauz dosyalarını içeren depo.
+-------------------------------------------------------------------
+
+Bu depo üzerinde sadece ayıklanmış kılavuz dosyaları bulunur.
+
+Dönüşüm betikler içerisinde yer alan "dönüşüm.sh" betiği ile
+yapılmştır.
