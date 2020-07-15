@@ -1,76 +1,61 @@
-NAME
-====
+ADI
+===
 
-iconvconfig - create iconv module configuration cache
+iconvconfig - iconv modülü yapılandırma önbelleği oluştur
 
 SYNOPSIS
 ========
 
-**iconvconfig** [*options*] [*directory*]...
+**iconvconfig** [*seçenekler*] [*rehber*]...
 
-DESCRIPTION
-===========
+AÇIKLAMA
+========
 
-The **iconv**\ (3) function internally uses *gconv* modules to convert
-to and from a character set. A configuration file is used to determine
-the needed modules for a conversion. Loading and parsing such a
-configuration file would slow down programs that use **iconv**\ (3), so
-a caching mechanism is employed.
+**Iconv**\ (3) işlevi dahili olarak bir karakter kümesine ve karakter kümesinden dönüştürmek için *gconv* modüllerini kullanır. Bir dönüştürme için gereken modülleri belirlemek için bir yapılandırma dosyası kullanılır. Bu tür bir yapılandırma dosyasının yüklenmesi ve ayrıştırılması, **iconv**\ (3) kullanan programları yavaşlatır, bu nedenle bir önbellek mekanizması kullanılır.
 
-The **iconvconfig** program reads iconv module configuration files and
-writes a fast-loading gconv module configuration cache file.
+**Iconvconfig** programı, iconv modülü yapılandırma dosyalarını okur ve hızlı yüklenen bir gconv modülü yapılandırma önbellek dosyası yazar.
 
-In addition to the system provided gconv modules, the user can specify
-custom gconv module directories with the environment variable
-**GCONV_PATH**. However, iconv module configuration caching is used only
-when the environment variable **GCONV_PATH** is not set.
+Sistem tarafından sağlanan gconv modüllerine ek olarak, kullanıcı **GCONV_PATH** ortam değişkeni ile özel gconv modülü dizinleri belirtebilir. Ancak, iconv modülü yapılandırma önbelleği yalnızca **GCONV_PATH** ortam değişkeni ayarlanmadığında kullanılır.
 
-OPTIONS
-=======
+SEÇENEKLER
+==========
 
 **--nostdlib**
-   Do not search the system default gconv directory, only the
-   directories provided on the command line.
+   Sistem varsayılan gconv dizininde arama yapmayın, yalnızca komut satırında sağlanan dizinleri arayın.
 
 **-o**\ *outputfile*\ **, --output=**\ *outputfile*
-   Use *outputfile* for output instead of the system default cache
-   location.
+   Çıktı için sistem varsayılan önbellek konumu yerine *outputfile* kullanın.
 
 **--prefix=**\ *pathname*
-   Set the prefix to be prepended to the system pathnames. See FILES,
-   below. By default, the prefix is empty. Setting the prefix to *foo*,
-   the gconv module configuration would be read from
-   *foo/usr/lib/gconv/gconv-modules* and the cache would be written to
-   *foo/usr/lib/gconv/gconv-modules.cache*.
+   Sistem yol adlarının başına eklenecek öneki ayarlayın.Aşağıdaki DOSYALAR'a bakın. Varsayılan olarak önek boştur.Öneki *foo* olarak ayarlandığında, gconv modülü yapılandırması *foo/usr/lib/gconv/gconv-modules* okunur ve önbellek *foo/usr/lib/gconv/gconv-modules.cache*'ye yazılır.
 
 **-?**, **--help**
-   Print a usage summary and exit.
+   Bir kullanım özeti yazdırın ve çıkın.
 
 **--usage**
-   Print a short usage summary and exit.
+   Kısa bir kullanım özeti yazdırın ve çıkın.
 
 **-V**, **--version**
-   Print the version number, license, and disclaimer of warranty for
-   **iconv**.
+   **Iconv** için sürüm numarasını, lisansı ve garanti feragatnamesini yazdırın.
 
-EXIT STATUS
-===========
+ÇIKIŞ DURUMU
+============
 
-Zero on success, nonzero on errors.
+Başarı sıfır, hatalar sıfır değil.
 
-FILES
-=====
+DOSYALAR
+========
 
 */usr/lib/gconv*
-   Usual default gconv module path.
+   Her zamanki varsayılan gconv modülü yolu.
 
 */usr/lib/gconv/gconv-modules*
-   Usual system default gconv module configuration file.
+   Normal sistem varsayılan gconv modülü yapılandırma dosyası.
 
 */usr/lib/gconv/gconv-modules.cache*
-   Usual system gconv module configuration cache.
+   Normal sistem gconv modülü yapılandırma önbelleği.
 
-SEE ALSO
-========
+AYRICA BAKINIZ
+==============
 
 **iconv**\ (1), **iconv**\ (3)

@@ -1,10 +1,10 @@
-NAME
+ADI
+===
+
+ldconfig - dinamik bağlayıcı çalışma zamanı bağlamalarını yapılandır
+
+ÖZET
 ====
-
-ldconfig - configure dynamic linker run-time bindings
-
-SYNOPSIS
-========
 
 **/sbin/ldconfig** [**-nNvXV**] [**-f** *conf*] [**-C** *cache*] [**-r**
 *root*] *directory*...
@@ -13,113 +13,77 @@ SYNOPSIS
 
 **/sbin/ldconfig** **-p**
 
-DESCRIPTION
-===========
+AÇIKLAMA
+========
 
-**ldconfig** creates the necessary links and cache to the most recent
-shared libraries found in the directories specified on the command line,
-in the file */etc/ld.so.conf*, and in the trusted directories, */lib*
-and */usr/lib* (on some 64-bit architectures such as x86-64, */lib* and
-*/usr/lib* are the trusted directories for 32-bit libraries, while
-*/lib64* and */usr/lib64* are used for 64-bit libraries).
+**ldconfig**, komut satırında belirtilen dizinlerde, */etc/ld.so.conf* dosyasında ve güvenilen dizinlerde */lib* ve */usr/lib* (on'da bulunan en son paylaşılan kitaplıklara gerekli bağlantıları ve önbelleği oluşturur. *x86-64,/lib* ve */usr/lib* gibi bazı 64 bit mimariler 32 bit kitaplıklar için güvenilir dizinlerdir, 64 bit kitaplıklar için */lib64* ve /usr/lib64* kullanılır).
 
-The cache is used by the run-time linker, *ld.so* or *ld-linux.so*.
-**ldconfig** checks the header and filenames of the libraries it
-encounters when determining which versions should have their links
-updated.
+Önbellek, çalışma zamanı bağlayıcısı, ld.so veya *ld-linux.so* tarafından kullanılır. **ldconfig**, hangi sürümlerin bağlantılarının güncellenmesi gerektiğini belirlerken karşılaştığı kütüphanelerin başlıklarını ve dosya adlarını kontrol eder.
 
-**ldconfig** will attempt to deduce the type of ELF libraries (i.e.,
-libc5 or libc6/glibc) based on what C libraries, if any, the library was
-linked against.
+**ldconfig**, varsa kitaplığın hangi C kütüphanelerine bağlı olduğuna bağlı olarak ELF kütüphanelerinin türünü (yani, libc5 veya libc6 / glibc) çıkarmaya çalışacaktır.
 
-Some existing libraries do not contain enough information to allow the
-deduction of their type. Therefore, the */etc/ld.so.conf* file format
-allows the specification of an expected type. This is used *only* for
-those ELF libraries which we can not work out. The format is
-"dirname=TYPE", where TYPE can be libc4, libc5, or libc6. (This syntax
-also works on the command line.) Spaces are *not* allowed. Also see the
-**-p** option. **ldconfig** should normally be run by the superuser as
-it may require write permission on some root owned directories and
-files.
+Bazı mevcut kütüphaneler, türlerinin çıkarılmasına izin verecek yeterli bilgi içermemektedir. Bu nedenle, */etc/ld.so.conf* dosya biçimi beklenen türün belirtilmesine izin verir. Bu sadece çalışamayacağımız ELF kütüphaneleri için kullanılır. Biçim "dirname = TYPE" şeklindedir; burada TYPE libc4, libc5 veya libc6 olabilir. (Bu sözdizimi komut satırında da çalışır.) Boşluklara izin verilmez. Ayrıca **-p** seçeneğine bakın. **ldconfig** normalde süper kullanıcı tarafından çalıştırılmalıdır, çünkü bazı kök sahip dizinlerde ve dosyalarda yazma izni gerektirebilir.
 
-Note that **ldconfig** will only look at files that are named
-*lib*.so\** (for regular shared objects) or *ld-*.so\** (for the dynamic
-loader itself). Other files will be ignored. Also, **ldconfig** expects
-a certain pattern to how the symlinks are set up, like this example,
-where the middle file (**libfoo.so.1** here) is the SONAME for the
-library:
+**ldconfig** dosyasının yalnızca *lib*.so\** (normal paylaşılan nesneler için) veya *ld-*.so\** (dinamik yükleyicinin kendisi için) adlı dosyalara bakacağını unutmayın. Diğer dosyalar yok sayılır. Ayrıca, ldconfig, orta dosyanın (**libfoo.so.1** burada) kütüphane için SONAME olduğu durumlarda, örnek bağlantıların nasıl oluşturulduğuna dair belirli bir model bekler:
 
 ::
 
    libfoo.so -> libfoo.so.1 -> libfoo.so.1.12
 
-Failure to follow this pattern may result in compatibility issues after
-an upgrade.
+Bu kalıba uyulmaması, yükseltme işleminden sonra uyumluluk sorunlarına neden olabilir.
 
-OPTIONS
-=======
+SEÇENEKLER
+==========
 
 **-c** *fmt*, **--format=\ fmt**
-   (Since glibc 2.2) Cache format to use: *old*, *new*, or *compat*.
-   Since glibc 2.32, the default is *new*. Before that, it was *compat*.
+   (Glibc 2.2'den beri) Kullanılacak önbellek biçimi: *eski*, *yeni* veya *uyumlu*. Glibc 2.32 olduğundan, varsayılan değer yenidir. Ondan önce *uyumluydu*.
 
 **-C**\ *cache*
-   Use *cache* instead of */etc/ld.so.cache*.
+   */etc/ld.so.cache* yerine önbellek kullanın.
 
 **-f**\ *conf*
-   Use *conf* instead of */etc/ld.so.conf*.
+   */etc/ld.so.conf* yerine conf komutunu kullanın.
 
 **-i**, **--ignore-aux-cache**
-   (Since glibc 2.7) Ignore auxiliary cache file.
+   (Glibc 2.7'den beri) Yardımcı önbellek dosyasını yok sayın.
 
 **-l**
-   (Since glibc 2.2) Library mode. Manually link individual libraries.
-   Intended for use by experts only.
+   (Glibc 2.2'den beri) Kütüphane modu. Tek tek kitaplıkları manuel olarak bağlayın. Yalnızca uzmanlar tarafından kullanılması amaçlanmıştır.
 
 **-n**
-   Process only the directories specified on the command line. Don't
-   process the trusted directories, nor those specified in
-   */etc/ld.so.conf*. Implies **-N**.
+   Yalnızca komut satırında belirtilen dizinleri işleyin. Güvenilir dizinleri veya */etc/ld.so.conf* dosyasında belirtilen dizinleri işlemeyin. **-N**anlamına gelir.
 
 **-N**
-   Don't rebuild the cache. Unless **-X** is also specified, links are
-   still updated.
+   Önbelleği yeniden oluşturmayın. **-X** belirtilmezse, bağlantılar yine de güncelleştirilir.
 
 **-p**, **--print-cache**
-   Print the lists of directories and candidate libraries stored in the
-   current cache.
+   Geçerli önbellekte depolanan dizin ve aday kitaplıklarının listesini yazdırın.
 
 **-r**\ *root*
-   Change to and use *root* as the root directory.
+   Kök dizini olarak değiştirin ve kök dizini olarak kullanın.
 
 **-v**, **--verbose**
-   Verbose mode. Print current version number, the name of each
-   directory as it is scanned, and any links that are created. Overrides
-   quiet mode.
+   Ayrıntılı mod. Geçerli sürüm numarasını, taranan her dizinin adını ve oluşturulan bağlantıları yazdırın. Sessiz modu geçersiz kılar.
 
 **-V**, **--version**
-   Print program version.
+   Program sürümünü yazdırın.
 
 **-X**
-   Don't update links. Unless **-N** is also specified, the cache is
-   still rebuilt.
+   Bağlantıları güncelleme. **-N** belirtilmezse, önbellek yine de yeniden oluşturulur.
 
-FILES
-=====
+DOSYALAR
+========
 
 */lib/ld.so*
-   Run-time linker/loader.
+   Çalışma zamanı bağlayıcı/yükleyici.
 
 */etc/ld.so.conf*
-   File containing a list of directories, one per line, in which to
-   search for libraries.
+   Kütüphaneleri aramak için her satıra bir dizin içeren bir liste içeren dosya.
 
 */etc/ld.so.cache*
-   File containing an ordered list of libraries found in the directories
-   specified in */etc/ld.so.conf*, as well as those found in the trusted
-   directories.
+   */etc/ld.so.conf* dosyasında belirtilen dizinlerde ve güvenilir dizinlerde bulunan kitaplıkların sıralı bir listesini içeren dosya.
 
-SEE ALSO
-========
+AYRICA BAKINIZ
+==============
 
 **ldd**\ (1), **ld.so**\ (8)

@@ -1,54 +1,47 @@
-NAME
+ADI
+===
+
+tzselect - bir saat dilimi seçin
+
+ÖZET
 ====
-
-tzselect - select a timezone
-
-SYNOPSIS
-========
 
 **tzselect**
 
-DESCRIPTION
-===========
+AÇIKLAMA
+========
 
-The **tzselect** program asks the user for information about the current
-location, and outputs the resulting timezone description to standard
-output. The output is suitable as a value for the **TZ** environment
-variable.
+**Tzselect** programı kullanıcıdan geçerli konum hakkında bilgi ister ve ortaya çıkan saat dilimi açıklamasını standart çıktıya verir. Çıktı, **TZ** ortam değişkeni için bir değer olarak uygundur.
 
-All interaction with the user is done via standard input and standard
-error.
+Kullanıcı ile tüm etkileşim standart girdi ve standart hata ile yapılır.
 
-EXIT STATUS
-===========
+ÇIKIŞ DURUMU
+============
 
-The exit status is zero if a timezone was successfully obtained from the
-user, and is nonzero otherwise.
+Kullanıcıdan bir saat dilimi başarıyla alındıysa çıkış durumu sıfırdır, aksi takdirde sıfırdan farklıdır.
 
-ENVIRONMENT
-===========
-
-**AWK**
-   Name of a POSIX-compliant *awk* program (default: **awk**).
-
-**TZDIR**
-   Name of the directory containing timezone data files (default:
-   */usr/share/zoneinfo*).
-
-FILES
+ÇEVRE
 =====
 
+**AWK**
+   POSIX uyumlu bir *awk* programının adı (varsayılan: **awk**).
+
+**TZDIR**
+   Saat dilimi veri dosyalarını içeren dizinin adı (varsayılan: */usr/share/zoneinfo*).
+
+DOSYALAR
+========
+
 **TZDIR**\ */iso3166.tab*
-   Table of ISO 3166 2-letter country codes and country names.
+   ISO 3166 2 harfli ülke kodları ve ülke adları tablosu.
 
 **TZDIR**\ */zone.tab*
-   Table of country codes, latitude and longitude, TZ values, and
-   descriptive comments.
+   Ülke kodları, enlem ve boylam, TZ değerleri ve açıklayıcı yorumlar tablosu.
 
 **TZDIR**\ */TZ*
-   Timezone data file for timezone *TZ*.
+   Saat dilimi *TZ* için saat dilimi veri dosyası.
 
-SEE ALSO
-========
+AYRICA BAKINIZ
+==============
 
 **tzfile**\ (5), **zdump**\ (8), **zic**\ (8)

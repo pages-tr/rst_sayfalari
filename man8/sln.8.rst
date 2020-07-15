@@ -1,32 +1,26 @@
-NAME
+ADI
+===
+
+sln - sembolik bağlantılar oluştur
+
+ÖZET
 ====
-
-sln - create symbolic links
-
-SYNOPSIS
-========
 
 | **sln**\ *source dest*
 | **sln**\ *filelist*
 
-DESCRIPTION
-===========
-
-The **sln** program creates symbolic links. Unlike the **ln**\ (1)
-program, it is statically linked. This means that if for some reason the
-dynamic linker is not working, **sln** can be used to make symbolic
-links to dynamic libraries.
-
-The command line has two forms. In the first form, it creates *dest* as
-a new symbolic link to *source*.
-
-In the second form, *filelist* is a list of space-separated pathname
-pairs, and the effect is as if **sln** was executed once for each line
-of the file, with the two pathnames as the arguments.
-
-The **sln** program supports no command-line options.
-
-SEE ALSO
+AÇIKLAMA
 ========
+
+**sln** programı sembolik bağlantılar oluşturur. **ln**\ (1) programından farklı olarak, statik olarak bağlıdır. Bu, herhangi bir nedenle dinamik bağlayıcı çalışmıyorsa, **sln**'nin dinamik kitaplıklara sembolik bağlantılar yapmak için kullanılabileceği anlamına gelir.
+
+Komut satırı iki forma sahiptir. İlk formda *dest*, *kaynağa* yeni bir sembolik bağ olarak yaratılır.
+
+İkinci formda, *filelist*, boşlukla ayrılmış yol adı çiftlerinin bir listesidir ve etki, her yol satırı için argüman olarak iki yol adı ile *sln* dosyasının bir kez yürütüldüğü gibidir.
+
+**sln** programı komut satırı seçeneklerini desteklemez.
+
+AYRICA BAKINIZ
+==============
 
 **ln**\ (1), **ld.so**\ (8), **ldconfig**\ (8)

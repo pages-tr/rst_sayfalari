@@ -1,531 +1,295 @@
-NAME
+ADI
+===
+
+ld.so, ld-linux.so - dinamik bağlayıcı/yükleyici
+
+ÖZET
 ====
 
-ld.so, ld-linux.so - dynamic linker/loader
+Dinamik bağlayıcı, dinamik olarak bağlı bir program veya paylaşılan nesne çalıştırılarak dolaylı olarak çalıştırılabilir (bu durumda dinamik bağlayıcıya komut satırı seçenekleri geçirilemez ve ELF durumunda **.interp**'de depolanan dinamik bağlayıcı bölümü) veya doğrudan çalıştırarak:
 
-SYNOPSIS
+*/lib/ld-linux.so.\** [SEÇENEKLER] [PROGRAM [ARGÜMANLAR]]
+
+AÇIKLAMA
 ========
 
-The dynamic linker can be run either indirectly by running some
-dynamically linked program or shared object (in which case no
-command-line options to the dynamic linker can be passed and, in the ELF
-case, the dynamic linker which is stored in the **.interp** section of
-the program is executed) or directly by running:
+**ld.so** ve **ld-linux.so\*** programları, bir program için gereken paylaşılan nesneleri (paylaşılan kitaplıklar) bulur ve yükler, programı çalıştırmak için hazırlar ve çalıştırır.
 
-*/lib/ld-linux.so.\** [OPTIONS] [PROGRAM [ARGUMENTS]]
+Derleme sırasında **-static** seçeneği **ld**\ (1) 'e verilmedikçe Linux ikili dosyaları dinamik bağlantı (çalışma zamanında bağlantı) gerektirir.
 
-DESCRIPTION
-===========
+**ld.so** programı, uzun zaman önce kullanılan bir ikili biçim olan a.out ikili dosyalarını işler. **Ld-linux.so\*** programı (libc5 için */lib/ld-linux.so.1*, glibc2 için */lib/ld-linux.so.2*) daha modern ELF biçimindeki ikili dosyaları işler. Her iki program da aynı davranışa sahiptir ve aynı destek dosyalarını ve programları (**ldd**\ (1), **ldconfig**\ (8) ve */etc/ld.so.conf*) kullanır.
 
-The programs **ld.so** and **ld-linux.so\*** find and load the shared
-objects (shared libraries) needed by a program, prepare the program to
-run, and then run it.
+Paylaşılan nesne bağımlılıklarını çözerken, dinamik bağlayıcı önce her bağımlılık dizesini eğik çizgi içerip içermediğini kontrol eder (bu, bağlantı zamanında eğik çizgiler içeren bir paylaşılan nesne yol adı belirtilmişse oluşabilir). Bir eğik çizgi bulunursa, bağımlılık dizesi (göreli veya mutlak) yol adı olarak yorumlanır ve paylaşılan nesne bu yol adı kullanılarak yüklenir.
 
-Linux binaries require dynamic linking (linking at run time) unless the
-**-static** option was given to **ld**\ (1) during compilation.
+Paylaşılan bir nesne bağımlılığı eğik çizgi içermiyorsa, aşağıdaki sırayla aranır:
 
-The program **ld.so** handles a.out binaries, a binary format used long
-ago. The program **ld-linux.so\*** (*/lib/ld-linux.so.1* for libc5,
-*/lib/ld-linux.so.2* for glibc2) handles binaries that are in the more
-modern ELF format. Both programs have the same behavior, and use the
-same support files and programs (**ldd**\ (1), **ldconfig**\ (8), and
-*/etc/ld.so.conf*).
+o. Varsa, binary'nin DT_RPATH dinamik bölüm özniteliğinde belirtilen dizinlerin kullanılması ve DT_RUNPATH özniteliği yoktur. DT_RPATH kullanımı kullanımdan kaldırıldı.
 
-When resolving shared object dependencies, the dynamic linker first
-inspects each dependency string to see if it contains a slash (this can
-occur if a shared object pathname containing slashes was specified at
-link time). If a slash is found, then the dependency string is
-interpreted as a (relative or absolute) pathname, and the shared object
-is loaded using that pathname.
+p. Yürütülebilir dosya güvenli yürütme modunda (aşağıya bakın) çalıştırılmadığı sürece **LD_LIBRARY_PATH** ortam değişkenini kullanarak bu değişken göz ardı edilir.
 
-If a shared object dependency does not contain a slash, then it is
-searched for in the following order:
+q. Varsa, binary'nin DT_RUNPATH dinamik bölüm özelliğinde belirtilen dizinleri kullanarak. Bu tür dizinler yalnızca DT_NEEDED (doğrudan bağımlılıklar) girişlerinin gerektirdiği nesneleri bulmak için aranır ve kendilerinin kendi DT_RUNPATH girişlerine sahip olması gereken bu nesnelerin alt öğeleri için geçerli değildir. Bu, bağımlılık ağacındaki tüm çocuklara yapılan aramalara uygulanan DT_RPATH'den farklıdır.
 
-o. Using the directories specified in the DT_RPATH dynamic section
-   attribute of the binary if present and DT_RUNPATH attribute does not
-   exist. Use of DT_RPATH is deprecated.
+r. Daha önce artırılmış kütüphane yolunda bulunan aday paylaşılan nesnelerin derlenmiş bir listesini içeren */etc/ld.so.cache* önbellek dosyasından. Bununla birlikte, ikili dosya **-z nodeflib** bağlayıcı seçeneğiyle bağlantılıysa, varsayılan yollardaki paylaşılan nesneler atlanır. Donanım yeteneği dizinlerine yüklenen paylaşılan nesneler (aşağıya bakın) diğer paylaşılan nesneler için tercih edilir.
 
-p. Using the environment variable **LD_LIBRARY_PATH**, unless the
-   executable is being run in secure-execution mode (see below), in
-   which case this variable is ignored.
+s. Varsayılan yol */lib* ve ardından */usr/lib*. (Bazı 64 bit mimarilerde 64 bit paylaşılan nesneler için varsayılan yollar */lib64* ve sonra */usr/lib64*'tür.) İkili dosya **-z nodeflib** bağlayıcı seçeneğiyle bağlanmışsa, bu adım atlanır.
 
-q. Using the directories specified in the DT_RUNPATH dynamic section
-   attribute of the binary if present. Such directories are searched
-   only to find those objects required by DT_NEEDED (direct
-   dependencies) entries and do not apply to those objects' children,
-   which must themselves have their own DT_RUNPATH entries. This is
-   unlike DT_RPATH, which is applied to searches for all children in the
-   dependency tree.
+Rpath belirteci genişletmesi
+----------------------------
 
-r. From the cache file */etc/ld.so.cache*, which contains a compiled
-   list of candidate shared objects previously found in the augmented
-   library path. If, however, the binary was linked with the **-z
-   nodeflib** linker option, shared objects in the default paths are
-   skipped. Shared objects installed in hardware capability directories
-   (see below) are preferred to other shared objects.
+Dinamik bağlayıcı, bir rpath belirtimindeki (DT_RPATH veya DT_RUNPATH) belirli simge dizelerini anlar. Bu dizeler aşağıdaki gibi ikame edilir:
 
-s. In the default path */lib*, and then */usr/lib*. (On some 64-bit
-   architectures, the default paths for 64-bit shared objects are
-   */lib64*, and then */usr/lib64*.) If the binary was linked with the
-   **-z nodeflib** linker option, this step is skipped.
-
-Rpath token expansion
----------------------
-
-The dynamic linker understands certain token strings in an rpath
-specification (DT_RPATH or DT_RUNPATH). Those strings are substituted as
-follows:
-
-*$ORIGIN* (or equivalently *${ORIGIN}*)
-   This expands to the directory containing the program or shared
-   object. Thus, an application located in *somedir/app* could be
-   compiled with
-
+*$ORIGIN* (veya eşdeğer olarak *${ORIGIN}*)
+   Bu, programı veya paylaşılan nesneyi içeren dizine genişler. Böylece, *somedir/app* içerisinde yer alan bir uygulama
    ::
 
       gcc -Wl,-rpath,'$ORIGIN/../lib'
 
-   so that it finds an associated shared object in *somedir/lib* no
-   matter where *somedir* is located in the directory hierarchy. This
-   facilitates the creation of "turn-key" applications that do not need
-   to be installed into special directories, but can instead be unpacked
-   into any directory and still find their own shared objects.
+   böylece, dizin hiyerarşisinde *somedir* nerede olursa olsun, *somedir/lib*'de ilişkili bir paylaşılan nesne bulur. Bu, özel dizinlere yüklenmesi gerekmeyen, ancak bunun yerine herhangi bir dizine paketini açıp kendi paylaşılan nesnelerini bulabilen "anahtar teslim" uygulamaların oluşturulmasını kolaylaştırır.
 
-*$LIB* (or equivalently *${LIB}*)
-   This expands to *lib* or *lib64* depending on the architecture (e.g.,
-   on x86-64, it expands to *lib64* and on x86-32, it expands to *lib*).
+*$LIB* (veya eşdeğer olarak *${LIB}*)
+   Bu, mimariye bağlı olarak *lib* veya *lib64*'e genişler (örneğin, x86-64'te *lib64*'e ve x86-32'de *lib*'e genişler).
 
-*$PLATFORM* (or equivalently *${PLATFORM}*)
-   This expands to a string corresponding to the processor type of the
-   host system (e.g., "x86_64"). On some architectures, the Linux kernel
-   doesn't provide a platform string to the dynamic linker. The value of
-   this string is taken from the **AT_PLATFORM** value in the auxiliary
-   vector (see **getauxval**\ (3)).
+*$PLATFORM* (veya eşdeğer olarak *${PLATFORM}*)
+   Bu, ana bilgisayar sisteminin işlemci türüne karşılık gelen bir dizeye genişler (örneğin, "x86_64"). Bazı mimarilerde Linux çekirdeği, dinamik bağlayıcıya bir platform dizesi sağlamaz. Bu dizenin değeri yardımcı vektördeki **AT_PLATFORM** değerinden alınır (bkz. **Getauxval**\ (3)).
 
-OPTIONS
-=======
+SEÇENEKLER
+==========
 
 **--audit**\ *list*
-   Use objects named in *list* as auditors. The objects in *list* are
-   delimited by colons.
+   *list* adlandırılan nesneleri denetçi olarak kullanın. *list* nesneler iki nokta üst üste işaretiyle sınırlandırılır.
 
 **--inhibit-cache**
-   Do not use */etc/ld.so.cache*.
+   */etc/ld.so.cache* kullanmayın.
 
 **--library-path**\ *path*
-   Use *path* instead of **LD_LIBRARY_PATH** environment variable
-   setting (see below). The names *ORIGIN*, *LIB*, and *PLATFORM* are
-   interpreted as for the **LD_LIBRARY_PATH** environment variable.
+   *LD_LIBRARY_PATH* ortam değişkeni ayarı yerine yol kullanın (aşağıya bakın). *ORIGIN*, *LIB* ve *PLATFORM* adları **LD_LIBRARY_PATH** ortam değişkeni için yorumlanır.
 
 **--inhibit-rpath**\ *list*
-   Ignore RPATH and RUNPATH information in object names in *list*. This
-   option is ignored when running in secure-execution mode (see below).
-   The objects in *list* are delimited by colons or spaces.
+   *list* nesne adlarındaki RPATH ve RUNPATH bilgilerini yok sayın. Güvenli yürütme modunda çalışırken bu seçenek yok sayılır (aşağıya bakın). *list* nesneler iki nokta üst üste veya boşlukla sınırlandırılır.
 
 **--list**
-   List all dependencies and how they are resolved.
+   Tüm bağımlılıkları ve bunların nasıl çözümlendiğini listeleyin.
 
-**--preload** *list* (since glibc 2.30)
-   Preload the objects specified in *list*. The objects in *list* are
-   delimited by colons or spaces. The objects are preloaded as explained
-   in the description of the **LD_PRELOAD** environment variable below.
+**--preload** *list* (glibc 2.30'dan beri)
+   *list* belirtilen nesneleri önceden yükleyin. *list* nesneler iki nokta üst üste veya boşlukla sınırlandırılır. Nesneler, aşağıdaki **LD_PRELOAD** ortam değişkeninin açıklamasında açıklandığı gibi önceden yüklenir.
 
-   By contrast with **LD_PRELOAD**, the **--preload** option provides a
-   way to perform preloading for a single executable without affecting
-   preloading performed in any child process that executes a new
-   program.
+   **LD_PRELOAD**'ın aksine, **--preload** seçeneği, yeni bir program yürüten herhangi bir alt işlemde gerçekleştirilen önyüklemeyi etkilemeden tek bir yürütülebilir dosya için önyükleme gerçekleştirmenin bir yolunu sağlar.
 
 **--verify**
-   Verify that program is dynamically linked and this dynamic linker can
-   handle it.
+   Programın dinamik olarak bağlandığını ve bu dinamik bağlayıcıyı kaldırabildiğini doğrulayın.
 
-ENVIRONMENT
-===========
+ÇEVRE
+=====
 
-Various environment variables influence the operation of the dynamic
-linker.
+Çeşitli ortam değişkenleri dinamik bağlayıcının çalışmasını etkiler.
 
-Secure-execution mode
----------------------
+Güvenli yürütme modu
+--------------------
 
-For security reasons, if the dynamic linker determines that a binary
-should be run in secure-execution mode, the effects of some environment
-variables are voided or modified, and furthermore those environment
-variables are stripped from the environment, so that the program does
-not even see the definitions. Some of these environment variables affect
-the operation of the dynamic linker itself, and are described below.
-Other environment variables treated in this way include: **GCONV_PATH**,
-**GETCONF_DIR**, **HOSTALIASES**, **LOCALDOMAIN**, **LOCPATH**,
-**MALLOC_TRACE**, **NIS_PATH**, **NLSPATH**, **RESOLV_HOST_CONF**,
-**RES_OPTIONS**, **TMPDIR**, and **TZDIR**.
+Güvenlik nedeniyle, dinamik bağlayıcı bir ikili kodun güvenli yürütme modunda çalıştırılması gerektiğini belirlerse, bazı ortam değişkenlerinin etkileri geçersiz kılınır veya değiştirilir ve ayrıca bu ortam değişkenleri ortamdan çıkarılır, böylece program bile tanımlara bakınız. Bu ortam değişkenlerinden bazıları dinamik bağlayıcının çalışmasını etkiler ve aşağıda açıklanmıştır. Bu şekilde işlem gören diğer ortam değişkenleri şunları içerir: **GCONV_PATH**, **GETCONF_DIR**, **HOSTALIASES**, **LOCALDOMAIN**, **LOCPATH**, **MALLOC_TRACE**, **NIS_PATH**, **NLSPATH**, **RESOLV_HOST_CONF**, **RES_OPTIONS**, **TMPDIR** ve **TZDIR**.
 
-A binary is executed in secure-execution mode if the **AT_SECURE** entry
-in the auxiliary vector (see **getauxval**\ (3)) has a nonzero value.
-This entry may have a nonzero value for various reasons, including:
+Yardımcı vektördeki **AT_SECURE** girişi (bkz. **getauxval**\ (3)) sıfır olmayan bir değere sahipse, güvenli yürütme modunda bir ikili yürütülür. Bu giriş, aşağıdakiler de dahil olmak üzere çeşitli nedenlerle sıfır olmayan bir değere sahip olabilir:
 
--  The process's real and effective user IDs differ, or the real and
-   effective group IDs differ. This typically occurs as a result of
-   executing a set-user-ID or set-group-ID program.
+-  İşlemin gerçek ve etkili kullanıcı kimlikleri veya gerçek ve etkili grup kimlikleri farklıdır. Bu genellikle bir set-user-ID veya set-group-ID programının yürütülmesi sonucunda oluşur.
 
--  A process with a non-root user ID executed a binary that conferred
-   capabilities to the process.
+-  Kök olmayan bir kullanıcı kimliğine sahip bir işlem, işleme yetenekler sağlayan bir ikili dosya yürütür.
 
--  A nonzero value may have been set by a Linux Security Module.
+-  Linux Güvenlik Modülü tarafından sıfır dışında bir değer ayarlanmış olabilir.
 
-Environment variables
----------------------
+Ortam Değişkenleri
+------------------
 
-Among the more important environment variables are the following:
+Daha önemli çevre değişkenleri arasında şunlar vardır:
 
-**LD_ASSUME_KERNEL** (since glibc 2.2.3)
-   Each shared object can inform the dynamic linker of the minimum
-   kernel ABI version that it requires. (This requirement is encoded in
-   an ELF note section that is viewable via *readelf -n* as a section
-   labeled **NT_GNU_ABI_TAG**.) At run time, the dynamic linker
-   determines the ABI version of the running kernel and will reject
-   loading shared objects that specify minimum ABI versions that exceed
-   that ABI version.
+**LD_ASSUME_KERNEL** (glibc 2.2.3'ten beri)
+   Paylaşılan her nesne, dinamik bağlayıcıyı gerektirdiği minimum çekirdek ABI sürümü hakkında bilgilendirebilir. (Bu gereksinim, **NT_GNU_ABI_TAG** etiketli bir bölüm olarak *readelf -n* aracılığıyla görüntülenebilen bir ELF not bölümünde kodlanır.) Çalışma zamanında, dinamik bağlayıcı çalışan çekirdeğin ABI sürümünü belirler ve minimum ABI sürümlerini belirten paylaşılan nesneleri yüklemeyi reddeder Bu ABI sürümünü aşan.
 
-   **LD_ASSUME_KERNEL** can be used to cause the dynamic linker to
-   assume that it is running on a system with a different kernel ABI
-   version. For example, the following command line causes the dynamic
-   linker to assume it is running on Linux 2.2.5 when loading the shared
-   objects required by *myprog*:
+   **LD_ASSUME_KERNEL**, dinamik bağlayıcının farklı bir çekirdek ABI sürümüne sahip bir sistemde çalıştığını varsaymasına neden olmak için kullanılabilir. Örneğin, aşağıdaki komut satırı, dinamik bağlayıcının *myprog* için gereken paylaşılan nesneleri yüklerken Linux 2.2.5 üzerinde çalıştığını varsaymasına neden olur:
 
    ::
 
       $ LD_ASSUME_KERNEL=2.2.5 ./myprog
 
-   On systems that provide multiple versions of a shared object (in
-   different directories in the search path) that have different minimum
-   kernel ABI version requirements, **LD_ASSUME_KERNEL** can be used to
-   select the version of the object that is used (dependent on the
-   directory search order).
+   Farklı minimum çekirdek ABI sürüm gereksinimlerine sahip bir paylaşılan nesnenin (arama yolundaki farklı dizinlerde) birden çok sürümünü sağlayan sistemlerde, kullanılan nesnenin sürümünü (dizin arama sırasına bağlı olarak) seçmek için **LD_ASSUME_KERNEL** kullanılabilir .
 
-   Historically, the most common use of the **LD_ASSUME_KERNEL** feature
-   was to manually select the older LinuxThreads POSIX threads
-   implementation on systems that provided both LinuxThreads and NPTL
-   (which latter was typically the default on such systems); see
-   **pthreads**\ (7).
+   Tarihsel olarak, **LD_ASSUME_KERNEL** özelliğinin en yaygın kullanımı, hem LinuxThreads hem de NPTL sağlayan sistemlerde eski LinuxThreads POSIX iş parçacığı uygulamasını (bu tür sistemler için genellikle varsayılan olarak varsayılan olan) el ile seçmekti; bkz. **pthreads**\ (7).
 
-**LD_BIND_NOW** (since glibc 2.1.1)
-   If set to a nonempty string, causes the dynamic linker to resolve all
-   symbols at program startup instead of deferring function call
-   resolution to the point when they are first referenced. This is
-   useful when using a debugger.
+**LD_BIND_NOW** (glibc 2.1.1'den beri)
+   Boş olmayan bir dizeye ayarlanırsa, dinamik bağlayıcı, işlev çağrısı çözümlemesini ilk başvurulan noktaya ertelemek yerine program başlangıcında tüm sembolleri çözmesine neden olur. Bu hata ayıklayıcı kullanırken faydalıdır.
 
 **LD_LIBRARY_PATH**
-   A list of directories in which to search for ELF libraries at
-   execution time. The items in the list are separated by either colons
-   or semicolons, and there is no support for escaping either separator.
+   Yürütme sırasında ELF kitaplıklarının aranacağı dizinlerin listesi. Listedeki öğeler iki nokta üst üste veya noktalı virgülle ayrılır ve her iki ayırıcıdan kaçmak için destek yoktur.
 
-   This variable is ignored in secure-execution mode.
+   Bu değişken güvenli yürütme modunda yok sayılır.
 
-   Within the pathnames specified in **LD_LIBRARY_PATH**, the dynamic
-   linker expands the tokens *$ORIGIN*, *$LIB*, and *$PLATFORM* (or the
-   versions using curly braces around the names) as described above in
-   *Rpath token expansion*. Thus, for example, the following would cause
-   a library to be searched for in either the *lib* or *lib64*
-   subdirectory below the directory containing the program to be
-   executed:
+   **LD_LIBRARY_PATH** içinde belirtilen yol adları içinde, dinamik bağlayıcı *Rpath jeton genişletmesinde* yukarıda açıklandığı gibi *$ORIGIN*, *$LIB* ve *$PLATFORM* (veya adların etrafında süslü parantez kullanan sürümler) belirteçlerini genişletir. Bu nedenle, örneğin aşağıdakiler, yürütülecek programı içeren dizinin altındaki *lib* veya *lib64* alt dizininde bir kitaplığın aranmasına neden olur:
 
    ::
 
       $ LD_LIBRARY_PATH='$ORIGIN/$LIB' prog
 
-   (Note the use of single quotes, which prevent expansion of *$ORIGIN*
-   and *$LIB* as shell variables!)
+   (*$ORIGIN* ve *$LIB* değerlerinin kabuk değişkenleri olarak genişletilmesini engelleyen tek tırnak kullanımını unutmayın!)
 
 **LD_PRELOAD**
-   A list of additional, user-specified, ELF shared objects to be loaded
-   before all others. This feature can be used to selectively override
-   functions in other shared objects.
+   Diğerlerinden önce yüklenecek ek, kullanıcı tanımlı, ELF paylaşılan nesnelerin listesi. Bu özellik, diğer paylaşılan nesnelerdeki işlevleri seçici olarak geçersiz kılmak için kullanılabilir.
 
-   The items of the list can be separated by spaces or colons, and there
-   is no support for escaping either separator. The objects are searched
-   for using the rules given under DESCRIPTION. Objects are searched for
-   and added to the link map in the left-to-right order specified in the
-   list.
+   Listenin öğeleri boşluk veya iki nokta üst üste ile ayrılabilir ve ayırıcılardan kaçmak için destek yoktur. Nesneler, DESCRIPTION altında verilen kurallar kullanılarak aranır. Nesneler aranır ve listede belirtilen soldan sağa doğru sırada bağlantı eşlemesine eklenir.
 
-   In secure-execution mode, preload pathnames containing slashes are
-   ignored. Furthermore, shared objects are preloaded only from the
-   standard search directories and only if they have set-user-ID mode
-   bit enabled (which is not typical).
+   Güvenli yürütme modunda, eğik çizgiler içeren önyükleme yol adları yoksayılır. Ayrıca, paylaşılan nesneler yalnızca standart arama dizinlerinden ve yalnızca set-kullanıcı kimliği mod biti etkinleştirilmişse (tipik değildir) önceden yüklenir.
 
-   Within the names specified in the **LD_PRELOAD** list, the dynamic
-   linker understands the tokens *$ORIGIN*, *$LIB*, and *$PLATFORM* (or
-   the versions using curly braces around the names) as described above
-   in *Rpath token expansion*. (See also the discussion of quoting under
-   the description of **LD_LIBRARY_PATH**.)
+   **LD_PRELOAD** listesinde belirtilen adlar içinde dinamik bağlayıcı, yukarıda *Rpath token genişletmesinde* açıklandığı gibi *$ORIGIN*, *$LIB* ve *$PLATFORM* (veya adların etrafında süslü parantez kullanan sürümler) belirteçlerini anlar. (Ayrıca **LD_LIBRARY_PATH** açıklamasında alıntı yapma tartışmasına bakınız.)
 
-   There are various methods of specifying libraries to be preloaded,
-   and these are handled in the following order:
+   Önceden yüklenecek kütüphaneleri belirtmenin çeşitli yöntemleri vardır ve bunlar aşağıdaki sırayla ele alınır:
 
-   (1) The **LD_PRELOAD** environment variable.
+   (1) **LD_PRELOAD** ortam değişkeni.
 
-   (2) The **--preload** command-line option when invoking the dynamic
-       linker directly.
+   (2) Dinamik bağlayıcıyı doğrudan çağırırken **--preload** komut satırı seçeneği.
 
-   (3) The */etc/ld.so.preload* file (described below).
+   (3) */etc/ld.so.preload* dosyası (aşağıda açıklanmıştır).
 
 **LD_TRACE_LOADED_OBJECTS**
-   If set (to any value), causes the program to list its dynamic
-   dependencies, as if run by **ldd**\ (1), instead of running normally.
+   (Herhangi bir değere) ayarlanırsa, programın normal bağımlılık yerine **ldd**\ (1) tarafından çalıştırılmış gibi dinamik bağımlılıklarını listelemesine neden olur.
 
-Then there are lots of more or less obscure variables, many obsolete or
-only for internal use.
+Sonra, birçoğu eski veya sadece dahili kullanım için çok fazla veya daha az belirsiz değişken var.
 
-**LD_AUDIT** (since glibc 2.4)
-   A list of user-specified, ELF shared objects to be loaded before all
-   others in a separate linker namespace (i.e., one that does not
-   intrude upon the normal symbol bindings that would occur in the
-   process) These objects can be used to audit the operation of the
-   dynamic linker. The items in the list are colon-separated, and there
-   is no support for escaping the separator.
+**LD_AUDIT** (glibc 2.4'ten beri)
+   Ayrı bir bağlayıcı ad alanında diğerlerinden önce yüklenecek kullanıcı tanımlı, ELF paylaşılan nesnelerin bir listesi (yani, işlemde oluşacak normal sembol bağlarına girmeyen) Bu nesneler işlemi denetlemek için kullanılabilir dinamik bağlayıcı. Listedeki öğeler iki nokta üstüste ayrılmıştır ve ayırıcıdan kaçmak için destek yoktur.
 
-   **LD_AUDIT** is ignored in secure-execution mode.
+   **LD_AUDIT** güvenli yürütme modunda yok sayılır.
 
-   The dynamic linker will notify the audit shared objects at so-called
-   auditing checkpoints—for example, loading a new shared object,
-   resolving a symbol, or calling a symbol from another shared object—by
-   calling an appropriate function within the audit shared object. For
-   details, see **rtld-audit**\ (7). The auditing interface is largely
-   compatible with that provided on Solaris, as described in its *Linker
-   and Libraries Guide*, in the chapter *Runtime Linker Auditing
-   Interface*.
+   Dinamik bağlayıcı, denetim paylaşılan nesnesindeki uygun bir işlevi çağırarak denetim paylaşılan nesnelerini denetim denetim noktalarında (örneğin, yeni bir paylaşılan nesne yükleme, bir sembol çözme veya başka bir paylaşılan nesneden bir simge çağırma) bildirir. Ayrıntılar için, bkz. **rtld-audit**\ (7). Denetim arabirimi, Bağlayıcı ve Kütüphaneler Kılavuzunda *Runtime Linker Denetim Arayüzü* bölümünde açıklandığı gibi Solaris'te sağlananla büyük ölçüde uyumludur.
 
-   Within the names specified in the **LD_AUDIT** list, the dynamic
-   linker understands the tokens *$ORIGIN*, *$LIB*, and *$PLATFORM* (or
-   the versions using curly braces around the names) as described above
-   in *Rpath token expansion*. (See also the discussion of quoting under
-   the description of **LD_LIBRARY_PATH**.)
+   **LD_AUDIT** listesinde belirtilen adlar içinde dinamik bağlayıcı, yukarıda *Rpath token genişletmesinde* açıklandığı gibi *$ORIGIN*, *$LIB* ve *$PLATFORM* (veya adların etrafında süslü parantez kullanan sürümler) belirteçlerini anlar. (Ayrıca **LD_LIBRARY_PATH** açıklamasında alıntı yapma tartışmasına bakınız.)
 
-   Since glibc 2.13, in secure-execution mode, names in the audit list
-   that contain slashes are ignored, and only shared objects in the
-   standard search directories that have the set-user-ID mode bit
-   enabled are loaded.
+   Glibc 2.13, güvenli yürütme modunda, denetim listesindeki eğik çizgiler içeren adlar göz ardı edilir ve yalnızca standart arama dizinlerinde set-user-ID mod biti etkinleştirilmiş olan paylaşılan nesneler yüklenir.
 
-**LD_BIND_NOT** (since glibc 2.1.95)
-   If this environment variable is set to a nonempty string, do not
-   update the GOT (global offset table) and PLT (procedure linkage
-   table) after resolving a function symbol. By combining the use of
-   this variable with **LD_DEBUG** (with the categories *bindings* and
-   *symbols*), one can observe all run-time function bindings.
+**LD_BIND_NOT** (glibc 2.1.95'ten beri)
+   Bu ortam değişkeni boş olmayan bir dizeye ayarlanırsa, bir işlev sembolünü çözdükten sonra GOT'u (genel ofset tablosu) ve PLT'yi (prosedür bağlantı tablosu) güncellemeyin. Bu değişkenin kullanımını **LD_DEBUG** (*bağlamalar* ve *semboller* kategorileriyle) ile birleştirerek, tüm çalışma zamanı işlev bağlamaları gözlemlenebilir.
 
-**LD_DEBUG** (since glibc 2.1)
-   Output verbose debugging information about operation of the dynamic
-   linker. The content of this variable is one of more of the following
-   categories, separated by colons, commas, or (if the value is quoted)
-   spaces:
+**LD_DEBUG** (glibc 2.1'den beri)
+   Dinamik bağlayıcının çalışması hakkında ayrıntılı hata ayıklama bilgileri çıktısı alın. Bu değişkenin içeriği, iki nokta üst üste, virgül veya (değer belirtilmişse) boşluklarla ayrılmış aşağıdaki kategorilerden daha fazladır:
 
    *help*
-      Specifying *help* in the value of this variable does not run the
-      specified program, and displays a help message about which
-      categories can be specified in this environment variable.
+      Bu değişkenin değerinde *yardım* belirtilmesi belirtilen programı çalıştırmaz ve bu ortam değişkeninde hangi kategorilerin belirtilebileceği hakkında bir yardım iletisi görüntüler.
 
    *all*
-      Print all debugging information (except *statistics* and *unused*;
-      see below).
+      Tüm hata ayıklama bilgilerini yazdırın (*istatistikler* ve *kullanılmayanlar hariç*; aşağıya bakın).
 
    *bindings*
-      Display information about which definition each symbol is bound
-      to.
+      Her sembolün bağlı olduğu tanım hakkında bilgi görüntüler.
 
    *files*
-      Display progress for input file.
+      Giriş dosyası için ilerleme durumunu görüntüler.
 
    *libs*
-      Display library search paths.
+      Kitaplık arama yollarını görüntüleme.
 
    *reloc*
-      Display relocation processing.
+      Yer değiştirme işlemini görüntüleyin.
 
    *scopes*
-      Display scope information.
+      Kapsam bilgilerini görüntüler.
 
    *statistics*
-      Display relocation statistics.
+      Yer değiştirme istatistiklerini görüntüler.
 
    *symbols*
-      Display search paths for each symbol look-up.
+      Her sembol araması için arama yollarını görüntüleyin.
 
    *unused*
-      Determine unused DSOs.
+      Kullanılmayan DSO'ları belirleyin.
 
    *versions*
-      Display version dependencies.
+      Sürüm bağımlılıklarını göster.
 
-   Since glibc 2.3.4, **LD_DEBUG** is ignored in secure-execution mode,
-   unless the file */etc/suid-debug* exists (the content of the file is
-   irrelevant).
+   Glibc 2.3.4 olduğundan, */etc/suid-debug* dosyası yoksa (dosyanın içeriği ilgisiz) **LD_DEBUG** güvenli yürütme modunda yok sayılır.
 
-**LD_DEBUG_OUTPUT** (since glibc 2.1)
-   By default, **LD_DEBUG** output is written to standard error. If
-   **LD_DEBUG_OUTPUT** is defined, then output is written to the
-   pathname specified by its value, with the suffix "." (dot) followed
-   by the process ID appended to the pathname.
+**LD_DEBUG_OUTPUT** (glibc 2.1'den beri)
+   Varsayılan olarak, **LD_DEBUG** çıktısı standart hataya yazılır. **LD_DEBUG_OUTPUT** tanımlanmışsa, çıktı değeri tarafından belirtilen yol adına "." Sonekiyle yazılır. (nokta) ve ardından yol adına eklenen işlem kimliği.
 
-   **LD_DEBUG_OUTPUT** is ignored in secure-execution mode.
+   Güvenli yürütme modunda **LD_DEBUG_OUTPUT** yoksayılır.
 
-**LD_DYNAMIC_WEAK** (since glibc 2.1.91)
-   By default, when searching shared libraries to resolve a symbol
-   reference, the dynamic linker will resolve to the first definition it
-   finds.
+**LD_DYNAMIC_WEAK** (glibc 2.1.91'den beri)
+   Varsayılan olarak, bir sembol başvurusunu çözmek için paylaşılan kitaplıklarda arama yaparken, dinamik bağlayıcı bulduğu ilk tanıma çözümlenir.
 
-   Old glibc versions (before 2.2), provided a different behavior: if
-   the linker found a symbol that was weak, it would remember that
-   symbol and keep searching in the remaining shared libraries. If it
-   subsequently found a strong definition of the same symbol, then it
-   would instead use that definition. (If no further symbol was found,
-   then the dynamic linker would use the weak symbol that it initially
-   found.)
+   Eski glibc sürümleri (2.2'den önce) farklı bir davranış sağladı: eğer bağlayıcı zayıf bir sembol bulduysa, o sembolü hatırlar ve kalan paylaşılan kütüphanelerde aramaya devam eder. Daha sonra aynı sembolün güçlü bir tanımını bulsaydı, bunun yerine bu tanımı kullanırdı. (Başka sembol bulunamazsa, dinamik bağlayıcı başlangıçta bulduğu zayıf sembolü kullanır.)
 
-   The old glibc behavior was nonstandard. (Standard practice is that
-   the distinction between weak and strong symbols should have effect
-   only at static link time.) In glibc 2.2, the dynamic linker was
-   modified to provide the current behavior (which was the behavior that
-   was provided by most other implementations at that time).
+   Eski glibc davranışı standart değildi. (Standart uygulama, zayıf ve güçlü semboller arasındaki ayrımın sadece statik bağlantı zamanında etkili olması gerektiğidir.) Glibc 2.2'de, dinamik bağlayıcı mevcut davranışı (o diğer uygulamaların çoğu tarafından sağlanan davranış) sağlayacak şekilde değiştirilmiştir. zaman).
 
-   Defining the **LD_DYNAMIC_WEAK** environment variable (with any
-   value) provides the old (nonstandard) glibc behavior, whereby a weak
-   symbol in one shared library may be overridden by a strong symbol
-   subsequently discovered in another shared library. (Note that even
-   when this variable is set, a strong symbol in a shared library will
-   not override a weak definition of the same symbol in the main
-   program.)
+   **LD_DYNAMIC_WEAK** ortam değişkeninin tanımlanması (herhangi bir değerle) eski (standart olmayan) glibc davranışını sağlar, böylece bir paylaşılan kitaplıktaki zayıf bir sembol daha sonra başka bir paylaşılan kitaplıkta bulunan güçlü bir sembolle geçersiz kılınabilir. (Bu değişken ayarlandığında bile, paylaşılan kitaplıkta güçlü bir sembolün, ana programda aynı sembolün zayıf tanımını geçersiz kılmayacağını unutmayın.)
 
-   Since glibc 2.3.4, **LD_DYNAMIC_WEAK** is ignored in secure-execution
-   mode.
+   Glibc 2.3.4'ten beri, **LD_DYNAMIC_WEAK** güvenli yürütme modunda yok sayılır.
 
-**LD_HWCAP_MASK** (since glibc 2.1)
-   Mask for hardware capabilities.
+**LD_HWCAP_MASK** (glibc 2.1'den beri)
+   Donanım özellikleri için maske.
 
-**LD_ORIGIN_PATH** (since glibc 2.1)
-   Path where the binary is found.
+**LD_ORIGIN_PATH** (glibc 2.1'den beri)
+   İkili dosyanın bulunduğu yol.
 
-   Since glibc 2.4, **LD_ORIGIN_PATH** is ignored in secure-execution
-   mode.
+   Glibc 2.4'ten beri, **LD_ORIGIN_PATH** güvenli yürütme modunda yok sayılır.
 
-**LD_POINTER_GUARD** (glibc from 2.4 to 2.22)
-   Set to 0 to disable pointer guarding. Any other value enables pointer
-   guarding, which is also the default. Pointer guarding is a security
-   mechanism whereby some pointers to code stored in writable program
-   memory (return addresses saved by **setjmp**\ (3) or function
-   pointers used by various glibc internals) are mangled semi-randomly
-   to make it more difficult for an attacker to hijack the pointers for
-   use in the event of a buffer overrun or stack-smashing attack. Since
-   glibc 2.23, **LD_POINTER_GUARD** can no longer be used to disable
-   pointer guarding, which is now always enabled.
+**LD_POINTER_GUARD** (2.4 ila 2.22 arasında glibc)
+   İşaretçi korumasını devre dışı bırakmak için 0 olarak ayarlayın. Başka bir değer de varsayılan olan işaretçi korumayı etkinleştirir. İşaretçi koruması, yazılabilir program belleğinde depolanan bazı kodlayıcıların (**setjmp**\ (3) tarafından kaydedilen dönüş adresleri veya çeşitli glibc iç bileşenleri tarafından kullanılan işlev işaretleyicileri), bir saldırganın arabellek taşması veya istifleme saldırısı durumunda kullanılacak işaretçiler. Glibc 2.23 olduğundan, **LD_POINTER_GUARD** artık her zaman etkin olan işaretçi korumasını devre dışı bırakmak için kullanılamaz.
 
-**LD_PROFILE** (since glibc 2.1)
-   The name of a (single) shared object to be profiled, specified either
-   as a pathname or a soname. Profiling output is appended to the file
-   whose name is: "*$LD_PROFILE_OUTPUT*/*$LD_PROFILE*.profile".
+**LD_PROFILE** (glibc 2.1'den beri)
+   Bir yol adı veya bir soyadı olarak belirtilecek, profillenecek (tek) paylaşılan bir nesnenin adı. Profil çıktısı, adı "*$LD_PROFILE_OUTPUT*/*$LD_PROFILE*.profile" olan dosyaya eklenir.
 
-   Since glibc 2.2.5, **LD_PROFILE** is ignored in secure-execution
-   mode.
+   Glibc 2.2.5 olduğundan, **LD_PROFILE** güvenli yürütme modunda yok sayılır.
 
-**LD_PROFILE_OUTPUT** (since glibc 2.1)
-   Directory where **LD_PROFILE** output should be written. If this
-   variable is not defined, or is defined as an empty string, then the
-   default is */var/tmp*.
+**LD_PROFILE_OUTPUT** (glibc 2.1'den beri)
+   **LD_PROFILE** çıktısının yazılması gereken dizin. Bu değişken tanımlanmamışsa veya boş bir dize olarak tanımlanmışsa, varsayılan */var/tmp* şeklindedir.
 
-   **LD_PROFILE_OUTPUT** is ignored in secure-execution mode; instead
-   */var/profile* is always used. (This detail is relevant only before
-   glibc 2.2.5, since in later glibc versions, **LD_PROFILE** is also
-   ignored in secure-execution mode.)
+   **LD_PROFILE_OUTPUT** güvenli yürütme modunda yok sayılır; bunun yerine */var/profile* her zaman kullanılır. (Bu ayrıntı yalnızca glibc 2.2.5'ten önce geçerlidir, çünkü sonraki glibc sürümlerinde **LD_PROFILE** güvenli yürütme modunda da yok sayılır.)
 
-**LD_SHOW_AUXV** (since glibc 2.1)
-   If this environment variable is defined (with any value), show the
-   auxiliary array passed up from the kernel (see also
-   **getauxval**\ (3)).
+**LD_SHOW_AUXV** (glibc 2.1'den beri)
+   Bu ortam değişkeni tanımlanmışsa (herhangi bir değerle), çekirdekten geçen yardımcı diziyi gösterin (ayrıca bkz. **getauxval**\ (3)).
 
-   Since glibc 2.3.4, **LD_SHOW_AUXV** is ignored in secure-execution
-   mode.
+   Glibc 2.3.4'ten beri, **LD_SHOW_AUXV** güvenli yürütme modunda yok sayılır.
 
-**LD_TRACE_PRELINKING** (since glibc 2.4)
-   If this environment variable is defined, trace prelinking of the
-   object whose name is assigned to this environment variable. (Use
-   **ldd**\ (1) to get a list of the objects that might be traced.) If
-   the object name is not recognized, then all prelinking activity is
-   traced.
+**LD_TRACE_PRELINKING** (glibc 2.4'ten beri)
+   Bu ortam değişkeni tanımlanmışsa, adı bu ortam değişkenine atanan nesnenin ön bağlantısını izleyin. (İzlenebilecek nesnelerin bir listesini almak için **ldd**\ (1) kullanın.) Nesne adı tanınmazsa, tüm ön bağlantı etkinlikleri izlenir.
 
-**LD_USE_LOAD_BIAS** (since glibc 2.3.3)
-   By default (i.e., if this variable is not defined), executables and
-   prelinked shared objects will honor base addresses of their dependent
-   shared objects and (nonprelinked) position-independent executables
-   (PIEs) and other shared objects will not honor them. If
-   **LD_USE_LOAD_BIAS** is defined with the value 1, both executables
-   and PIEs will honor the base addresses. If **LD_USE_LOAD_BIAS** is
-   defined with the value 0, neither executables nor PIEs will honor the
-   base addresses.
+**LD_USE_LOAD_BIAS** (glibc 2.3.3'ten beri)
+   Varsayılan olarak (yani, bu değişken tanımlanmadıysa), yürütülebilir dosyalar ve önceden bağlanmış paylaşılan nesneler, bağımlı paylaşılan nesnelerinin temel adreslerini onurlandırır ve (önceden bağlanmamış) konumdan bağımsız yürütülebilir dosyalar (PIE'ler) ve diğer paylaşılan nesneler, onurlandırmaz. **LD_USE_LOAD_BIAS** 1 değeriyle tanımlanırsa, hem yürütülebilir dosyalar hem de PIE'ler temel adresleri dikkate alır. **LD_USE_LOAD_BIAS** 0 değeriyle tanımlanırsa, ne yürütülebilir dosyalar ne de PIE'ler temel adresleri onurlandırmaz.
 
-   Since glibc 2.3.3, this variable is ignored in secure-execution mode.
+   Glibc 2.3.3'ten beri, bu değişken güvenli yürütme modunda yok sayılır.
 
-**LD_VERBOSE** (since glibc 2.1)
-   If set to a nonempty string, output symbol versioning information
-   about the program if the **LD_TRACE_LOADED_OBJECTS** environment
-   variable has been set.
+**LD_VERBOSE** (glibc 2.1'den beri)
+   Boş olmayan bir dizeye ayarlanırsa, **LD_TRACE_LOADED_OBJECTS** ortam değişkeni ayarlanmışsa, program hakkındaki sembol sürüm bilgilerini girin.
 
 **LD_WARN**"**(since**\ glibc\ **2.1.3)**
-   If set to a nonempty string, warn about unresolved symbols.
+   Boş olmayan bir dizeye ayarlanırsa, çözülmemiş simgeler hakkında uyarın.
 
-**LD_PREFER_MAP_32BIT_EXEC** (x86-64 only; since glibc 2.23)
-   According to the Intel Silvermont software optimization guide, for
-   64-bit applications, branch prediction performance can be negatively
-   impacted when the target of a branch is more than 4 GB away from the
-   branch. If this environment variable is set (to any value), the
-   dynamic linker will first try to map executable pages using the
-   **mmap**\ (2) **MAP_32BIT** flag, and fall back to mapping without
-   that flag if that attempt fails. NB: MAP_32BIT will map to the low 2
-   GB (not 4 GB) of the address space.
+**LD_PREFER_MAP_32BIT_EXEC** (yalnızca x86-64; glibc 2.23'ten beri)
+   Intel Silvermont yazılım optimizasyon kılavuzuna göre, 64 bit uygulamalar için bir dalın hedefi daldan 4 GB'den fazla olduğunda dal tahmini performansı olumsuz etkilenebilir. Bu ortam değişkeni (herhangi bir değere) ayarlanırsa, dinamik bağlayıcı önce **mmap**\ (2) **MAP_32BIT**\ bayrağını kullanarak yürütülebilir sayfaları eşlemeye çalışır ve bu girişim başarısız olursa bu bayrak olmadan eşlemeye geri döner. Not: MAP_32BIT, adres alanının düşük 2 GB'lık (4 GB değil) eşlemesini yapar.
 
-   Because **MAP_32BIT** reduces the address range available for address
-   space layout randomization (ASLR), **LD_PREFER_MAP_32BIT_EXEC** is
-   always disabled in secure-execution mode.
+   **MAP_32BIT**, adres alanı düzeni rastgele seçimi (ASLR) için kullanılabilir adres aralığını azalttığından, güvenli yürütme modunda **LD_PREFER_MAP_32BIT_EXEC** her zaman devre dışı bırakılır.
 
-FILES
-=====
+DOSYALAR
+========
 
 */lib/ld.so*
-   a.out dynamic linker/loader
+   a.out dinamik bağlayıcı/yükleyici
 
 */lib/ld-linux.so.*\ {*1*,\ *2*}
-   ELF dynamic linker/loader
+   ELF dinamik bağlayıcı/yükleyici
 
 */etc/ld.so.cache*
-   File containing a compiled list of directories in which to search for
-   shared objects and an ordered list of candidate shared objects. See
-   **ldconfig**\ (8).
+   Paylaşılan nesneleri ve aday paylaşılan nesnelerin sıralı bir listesini aramak için derlenmiş bir dizin listesi içeren dosya. Bkz. **ldconfig**\ (8).
 
 */etc/ld.so.preload*
-   File containing a whitespace-separated list of ELF shared objects to
-   be loaded before the program. See the discussion of **LD_PRELOAD**
-   above. If both **LD_PRELOAD** and */etc/ld.so.preload* are employed,
-   the libraries specified by **LD_PRELOAD** are preloaded first.
-   */etc/ld.so.preload* has a system-wide effect, causing the specified
-   libraries to be preloaded for all programs that are executed on the
-   system. (This is usually undesirable, and is typically employed only
-   as an emergency remedy, for example, as a temporary workaround to a
-   library misconfiguration issue.)
+   Programdan önce yüklenecek boşlukla ayrılmış ELF paylaşılan nesnelerin listesini içeren dosya. Yukarıdaki **LD_PRELOAD** tartışmasına bakın. Hem **LD_PRELOAD** hem de /etc/ld.so.preload kullanılırsa, önce **LD_PRELOAD** tarafından belirtilen kütüphaneler önceden yüklenir. */etc/ld.so.preload* sistem genelinde bir etkiye sahiptir ve belirtilen kitaplıkların sistemde yürütülen tüm programlar için önceden yüklenmesine neden olur. (Bu genellikle istenmeyen bir durumdur ve genellikle yalnızca acil bir çözüm olarak, örneğin bir kitaplık yanlış yapılandırma sorununa geçici bir çözüm olarak kullanılır.)
 
 *lib*.so\**
-   shared objects
+   paylaşılan nesneler
 
-NOTES
-=====
+NOTLAR
+======
 
-Hardware capabilities
----------------------
+Donanım özellikleri
+-------------------
 
-Some shared objects are compiled using hardware-specific instructions
-which do not exist on every CPU. Such objects should be installed in
-directories whose names define the required hardware capabilities, such
-as */usr/lib/sse2/*. The dynamic linker checks these directories against
-the hardware of the machine and selects the most suitable version of a
-given shared object. Hardware capability directories can be cascaded to
-combine CPU features. The list of supported hardware capability names
-depends on the CPU. The following names are currently recognized:
+Bazı paylaşılan nesneler, her CPU'da bulunmayan donanıma özgü talimatlar kullanılarak derlenir. Bu nesneler, adları */usr/lib/sse2/* gibi gerekli donanım özelliklerini tanımlayan dizinlere kurulmalıdır. Dinamik bağlayıcı, bu dizinleri makinenin donanımına karşı kontrol eder ve belirli bir paylaşılan nesnenin en uygun sürümünü seçer. CPU özelliklerini birleştirmek için donanım yeteneği dizinleri basamaklandırılabilir. Desteklenen donanım yeteneği adlarının listesi CPU'ya bağlıdır. Şu anda aşağıdaki adlar tanınmaktadır:
 
 **Alpha**
    ev4, ev5, ev56, ev6, ev67
@@ -550,8 +314,8 @@ depends on the CPU. The following names are currently recognized:
    i686, mca, mmx, mtrr, pat, pbe, pge, pn, pse36, sep, ss, sse, sse2,
    tm
 
-SEE ALSO
-========
+AYRICA BAKINIZ
+==============
 
 **ld**\ (1), **ldd**\ (1), **pldd**\ (1), **sprof**\ (1),
 **dlopen**\ (3), **getauxval**\ (3), **elf**\ (5),

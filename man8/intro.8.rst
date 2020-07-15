@@ -1,25 +1,19 @@
-NAME
-====
+ADI
+===
 
-intro - introduction to administration and privileged commands
+intro - yönetime giriş ve ayrıcalıklı komutlar
 
-DESCRIPTION
-===========
+AÇIKLAMA
+========
 
-Section 8 of the manual describes commands which either can be or are
-used only by the superuser, like system-administration commands,
-daemons, and hardware-related commands.
+Kılavuzun 8. Bölümünde, sistem yönetimi komutları, arka plan pencereleri ve donanımla ilgili komutlar gibi yalnızca süper kullanıcı tarafından kullanılabilen veya kullanılabilen komutlar açıklanmaktadır.
 
-As with the commands described in Section 1, the commands described in
-this section terminate with an exit status that indicates whether the
-command succeeded or failed. See **intro**\ (1) for more information.
+Bölüm 1'de açıklanan komutlarda olduğu gibi, bu bölümde açıklanan komutlar, komutun başarılı olup olmadığını gösteren bir çıkış durumuyla sonlanır. Daha fazla bilgi için **giriş**\ (1) 'e bakınız.
 
-NOTES
-=====
+NOTLAR
+======
 
-Authors and copyright conditions
---------------------------------
+Yazarlar ve telif hakkı koşulları
+---------------------------------
 
-Look at the header of the manual page source for the author(s) and
-copyright conditions. Note that these can be different from page to
-page!
+Yazar(lar) ve telif hakkı koşulları için manuel sayfa kaynağının başlığına bakın. Bunların sayfadan sayfaya farklı olabileceğini unutmayın!

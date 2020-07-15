@@ -1,119 +1,72 @@
-NAME
+ADI
+===
+
+zic - saat dilimi derleyicisi
+
+ÖZET
 ====
 
-zic - timezone compiler
+**zic** [ *seçenek* ... ] [ *dosya adı* ... ]
 
-SYNOPSIS
+AÇIKLAMA
 ========
 
-**zic** [ *option* ... ] [ *filename* ... ]
+**Zic** programı, komut satırında belirtilen dosyalardan metin okur ve bu girdide belirtilen zaman dönüştürme bilgi dosyalarını oluşturur. Bir *dosya adı* “” ise, standart girdi okunur.
 
-DESCRIPTION
-===========
-
-The **zic** program reads text from the file(s) named on the command
-line and creates the time conversion information files specified in this
-input. If a *filename* is “”, standard input is read.
-
-OPTIONS
-=======
+SEÇENEKLER
+==========
 
 **version**
-   Output version information and exit.
+   Çıktı sürüm bilgisi ve çıkış.
 
 **help**
-   Output short usage message and exit.
+   Kısa kullanım mesajı çıktısı ve çıkışı.
 
 **d**\ *directory*
-   Create time conversion information files in the named directory
-   rather than in the standard directory named below.
+   Zaman dönüştürme bilgi dosyalarını, aşağıda belirtilen standart dizinden ziyade, adlandırılmış dizinde oluşturun.
 
 **l**\ *timezone*
-   Use *timezone* as local time. **zic** will act as if the input
-   contained a link line of the form
+   *Saat dilimini* yerel saat olarak kullan. **zic**, giriş formun bir bağlantı satırını içeriyormuş gibi davranacaktır
 
-Link *timezone* localtime
+Yerel *saat dilimi* bağlantısı
 
 **p**\ *timezone*
-   Use *timezone*'s rules when handling POSIX-format timezone
-   environment variables. **zic** will act as if the input contained a
-   link line of the form
+   POSIX biçimindeki *saat dilimi* ortam değişkenlerini işlerken saat dilimi kurallarını kullanın. **zic**, giriş formun bir bağlantı satırını içeriyormuş gibi davranacaktır
 
-Link *timezone* posixrules
+Bağlantı *saat dilimi* posixrules
 
 **L**\ *leapsecondfilename*
-   Read leap second information from the file with the given name. If
-   this option is not used, no leap second information appears in output
-   files.
+   Verilen ada sahip artık saniye bilgisini dosyadan okuyun. Bu seçenek kullanılmazsa, çıktı dosyalarında artık saniye bilgisi görünmez.
 
 **v**
-   Be more verbose, and complain about the following situations:
+   Daha ayrıntılı olun ve aşağıdaki durumlar hakkında şikayet edin:
 
-   The input specifies a link to a link.
+   Girdi, bir bağlantının bağlantısını belirtir.
 
-   A year that appears in a data file is outside the range of years
-   representable by **time**\ (2) values.
+   Veri dosyasında görünen bir yıl, **zaman**\ (2) değerleriyle temsil edilebilen yıl aralığının dışında.
 
-   A time of 24:00 or more appears in the input. Pre-1998 versions of
-   **zic** prohibit 24:00, and pre-2007 versions prohibit times greater
-   than 24:00.
+   Girişte 24:00 veya daha fazla bir zaman görünür. 1998 öncesi **zic** sürümleri 24:00, 2007 öncesi sürümleri ise 24: 00'den büyük süreleri yasaklar.
 
-   A rule goes past the start or end of the month. Pre-2004 versions of
-   **zic** prohibit this.
+   Kural ayın başlangıcını veya sonunu aşar. 2004 öncesi **zic** versiyonları bunu yasaklamaktadır.
 
-   The output file does not contain all the information about the
-   long-term future of a timezone, because the future cannot be
-   summarized as an extended POSIX TZ string. For example, as of 2013
-   this problem occurs for Iran's daylight-saving rules for the
-   predicted future, as these rules are based on the Iranian calendar,
-   which cannot be represented.
+   Çıktı dosyası, bir zaman diliminin uzun vadeli geleceğiyle ilgili tüm bilgileri içermez, çünkü gelecek genişletilmiş POSIX TZ dizesi olarak özetlenemez. Örneğin, 2013 itibariyle bu sorun, öngörülemeyen gelecek için İran'ın gün ışığından yararlanma kuralları için ortaya çıkmaktadır, çünkü bu kurallar temsil edilemeyen İran takvimine dayanmaktadır.
 
-   The output contains data that may not be handled properly by client
-   code designed for older **zic** output formats. These compatibility
-   issues affect only timestamps before 1970 or after the start of 2038.
+   Çıktı, daha eski **zic** çıktı formatları için tasarlanmış istemci kodu tarafından düzgün işlenemeyen veriler içeriyor. Bu uyumluluk sorunları yalnızca 1970'den önce veya 2038'in başlangıcından sonra zaman damgalarını etkiler.
 
-   A time zone abbreviation has fewer than 3 characters. POSIX requires
-   at least 3.
+   Bir saat dilimi kısaltmasının 3'ten az karakteri vardır. POSIX en az 3 gerektirir.
 
-   An output file name contains a byte that is not an ASCII letter, “”,
-   “/”, or “_”; or it contains a file name component that contains more
-   than 14 bytes or that starts with “”.
+   Çıktı dosyası adı, ASCII harfi, “”, “/” veya “_” olmayan bir bayt içeriyor; veya 14 bayttan fazla içeren veya “” ile başlayan bir dosya adı bileşeni içeriyorsa.
 
 **s**
-   Limit time values stored in output files to values that are the same
-   whether they're taken to be signed or unsigned. You can use this
-   option to generate SVVS-compatible files.
+   Çıktı dosyalarında saklanan zaman değerlerini, imzalanmaları veya imzalanılmamaları için alınan değerlerle sınırlandırın. SVVS uyumlu dosyalar oluşturmak için bu seçeneği kullanabilirsiniz.
 
-Input files should be text files, that is, they should be a series of
-zero or more lines, each ending in a newline byte and containing at most
-511 bytes, and without any NUL bytes. The input text's encoding is
-typically UTF-8 or ASCII; it should have a unibyte representation for
-the POSIX Portable Character Set (PPCS)
-http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap06.html
-and the encoding's non-unibyte characters should consist entirely of
-non-PPCS bytes. Non-PPCS characters typically occur only in comments:
-although output file names and time zone abbreviations can contain
-nearly any character, other software will work better if these are
-limited to the restricted syntax described under the **v** option.
+Giriş dosyaları metin dosyaları olmalıdır, yani her biri yeni satır baytıyla biten ve en fazla 511 bayt içeren ve herhangi bir NUL bayt içermeyen sıfır veya daha fazla satırdan oluşan bir dizi olmalıdır. Giriş metninin kodlaması tipik olarak UTF-8 veya ASCII'dir; POSIX Taşınabilir Karakter Kümesi (PPCS) için unibyte temsili olmalıdır ve http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap06.html ve kodlamanın unibyte olmayan karakterleri tamamen PPCS olmayan baytlardan oluşmalıdır. PPCS olmayan karakterler genellikle yalnızca yorumlarda görülür: çıktı dosyası adları ve saat dilimi kısaltmaları hemen hemen her karakteri içerebilirse de, **v** seçeneği altında açıklanan kısıtlı sözdizimi ile sınırlıysa diğer yazılımlar daha iyi çalışır.
 
-Input lines are made up of fields. Fields are separated from one another
-by one or more white space characters. The white space characters are
-space, form feed, carriage return, newline, tab, and vertical tab.
-Leading and trailing white space on input lines is ignored. An unquoted
-sharp character (#) in the input introduces a comment which extends to
-the end of the line the sharp character appears on. White space
-characters and sharp characters may be enclosed in double quotes (") if
-they're to be used as part of a field. Any line that is blank (after
-comment stripping) is ignored. Nonblank lines are expected to be of one
-of three types: rule lines, zone lines, and link lines.
+Giriş satırları alanlardan oluşur. Alanlar birbirinden bir veya daha fazla boşluk karakteriyle ayrılır. Beyaz boşluk karakterleri boşluk, form besleme, satır başı, satırsonu, sekme ve dikey sekmedir. Giriş satırlarında öndeki ve sondaki beyaz boşluk yok sayılır. Girişteki alıntılanmamış bir keskin karakter (#), keskin karakterin göründüğü satırın sonuna kadar uzanan bir açıklama getirir. Bir alanın parçası olarak kullanılacaklarsa boşluk karakterleri ve keskin karakterler çift tırnak işareti (") içine alınabilir. Boş olan herhangi bir satır (yorum soyma işleminden sonra) yok sayılır. Boş olmayan satırlardan biri üç tür: kural çizgileri, bölge çizgileri ve bağlantı çizgileri.
 
-Names must be in English and are case insensitive. They appear in
-several contexts, and include month and weekday names and keywords such
-as **maximum**, **only**, **Rolling**, and **Zone**. A name can be
-abbreviated by omitting all but an initial prefix; any abbreviation must
-be unambiguous in context.
+İsimler İngilizce olmalı ve büyük / küçük harfe duyarlı değildir. Birkaç bağlamda görünürler ve ay, hafta içi adları ve yalnızca **maksimum**, **Yuvarlama** ve **Bölge** gibi anahtar kelimeler içerirler. Bir ad, bir ilk önek hariç tümü hariç tutularak kısaltılabilir; herhangi bir kısaltma, bağlam bakımından açık olmalıdır.
 
-A rule line has the form
+Bir kural satırı şu şekildedir
 
 ::
 
@@ -124,40 +77,25 @@ A rule line has the form
 
    Rule	US	1967	1973		Apr	lastSun	2:00w	1:00	D
 
-The fields that make up a rule line are:
+Bir kural satırı oluşturan alanlar şunlardır:
 
-**NAME**
-   Gives the name of the rule set that contains this line. The name must
-   start with a character that is neither an ASCII digit nor “” nor “+”.
-   To allow for future extensions, an unquoted name should not contain
-   characters from the set “!$%&'()*,/:;<=>?@[\]^`{|}~”.
+**ADI**
+   Bu satırı içeren kural kümesinin adını verir. Ad, ne ASCII basamağı ne de “” veya “+” olmayan bir karakterle başlamalıdır. Gelecekteki uzantılara izin vermek için, alıntılanmamış bir ad “!$%&'()*,/:;<=>?@[]^`{|}~” kümesinden karakterler içermemelidir.
 
 **FROM**
-   Gives the first year in which the rule applies. Any signed integer
-   year can be supplied; the proleptic Gregorian calendar is assumed,
-   with year 0 preceding year 1. The word **minimum** (or an
-   abbreviation) means the indefinite past. The word **maximum** (or an
-   abbreviation) means the indefinite future. Rules can describe times
-   that are not representable as time values, with the unrepresentable
-   times ignored; this allows rules to be portable among hosts with
-   differing time value types.
+   Kuralın uygulandığı ilk yılı verir. İmzalı bir tamsayı yılı sağlanabilir; proleptik Gregoryen takvimi, 1. yıldan önceki yıl 0 ile varsayılır. **Minimum** (veya bir kısaltma) kelimesi, belirsiz geçmiş anlamına gelir. **Maksimum** kelimesi (veya bir kısaltma) belirsiz gelecek anlamına gelir. Kurallar, tekrarlanamayan zamanlar yok sayılırken, zaman değerleri olarak gösterilemeyen zamanları tanımlayabilir; bu, kuralların farklı zaman değeri türlerine sahip ana bilgisayarlar arasında taşınabilir olmasını sağlar.
 
 **TO**
-   Gives the final year in which the rule applies. In addition to
-   **minimum** and **maximum** (as above), the word **only** (or an
-   abbreviation) may be used to repeat the value of the **FROM** field.
+   Kuralın uygulandığı son yılı verir. **Minimum** ve **maksimuma** (yukarıdaki gibi) ek olarak, **FROM** alanının değerini tekrarlamak için **yalnızca** kelime (veya bir kısaltma) kullanılabilir.
 
 **TYPE**
-   should be “” and is present for compatibility with older versions of
-   **zic** in which it could contain year types.
+   "" olmalı ve yıl türlerini içerebileceği eski **zic** sürümleriyle uyumluluk için hazır olmalıdır.
 
 **IN**
-   Names the month in which the rule takes effect. Month names may be
-   abbreviated.
+   Kuralın yürürlüğe girdiği ayı adlandırır. Ay adları kısaltılabilir.
 
 **ON**
-   Gives the day on which the rule takes effect. Recognized forms
-   include:
+   Kuralın yürürlüğe girdiği günü verir. Tanınan formlar şunları içerir:
 
 ::
 
@@ -168,13 +106,10 @@ The fields that make up a rule line are:
    Sun>=8	first Sunday on or after the eighth
    Sun<=25	last Sunday on or before the 25th
 
-A weekday name (e.g., **Sunday**) or a weekday name preceded by “last”
-(e.g., **lastSunday**) may be abbreviated or spelled out in full. Note
-that there must be no spaces within the **ON** field.
+Hafta içi bir ad (ör. **Pazar**) veya "son" (örn. **SonPazar**) öğesinden önce gelen bir hafta içi ad kısaltılabilir veya tam olarak belirtilebilir. **AÇIK** alanında boşluk olmamalıdır.
 
 **AT**
-   Gives the time of day at which the rule takes effect. Recognized
-   forms include:
+   Kuralın yürürlüğe girdiği günün saatini verir. Tanınan formlar şunları içerir:
 
 ::
 
@@ -187,31 +122,15 @@ that there must be no spaces within the **ON** field.
    2:30	2.5 hours before 00:00
    	equivalent to 0
 
-where hour 0 is midnight at the start of the day, and hour 24 is
-midnight at the end of the day. Any of these forms may be followed by
-the letter **w** if the given time is local “wall clock” time, **s** if
-the given time is local “standard” time, or **u** (or **g** or **z**) if
-the given time is universal time; in the absence of an indicator, wall
-clock time is assumed. The intent is that a rule line describes the
-instants when a clock/calendar set to the type of time specified in the
-**AT** field would show the specified date and time of day.
+0 saati günün başında gece yarısıdır ve 24 saati günün sonunda gece yarısıdır. Bu formlardan herhangi birini, verilen zaman yerel “duvar saati” zamanı ise **w** harfi, verilen zaman yerel “standart” zaman ise **s** veya verilen zaman evrensel zaman ise **u** (veya **g** veya **z**) takip edebilir. ; bir gösterge olmadığında, duvar saati zamanı varsayılır. Amaç, kural alanında, **AT** alanında belirtilen saat türüne ayarlanmış bir saat / takvim, belirtilen tarih ve günün saatini göstereceği anları tanımlamaktır.
 
 **SAVE**
-   Gives the amount of time to be added to local standard time when the
-   rule is in effect. This field has the same format as the **AT** field
-   (although, of course, the **w** and **s** suffixes are not used).
-   Negative offsets are allowed; in Ireland, for example, daylight
-   saving time is observed in winter and has a negative offset relative
-   to Irish Standard Time. The offset is merely added to standard time;
-   for example, **zic** does not distinguish a 10:30 standard time plus
-   an 0:30 **SAVE** from a 10:00 standard time plus a 1:00 **SAVE**.
+   Kural yürürlükte olduğunda yerel standart saate eklenecek süreyi verir. Bu alan **AT** alanıyla aynı formata sahiptir (tabii ki **w** ve **s** sonekleri kullanılmaz). Negatif ofsetlere izin verilir; İrlanda'da, örneğin, yaz saati uygulaması kışın gözlemlenir ve İrlanda Standart Saati'ne göre negatif bir dengelemeye sahiptir. Ofset sadece standart saate eklenir; örneğin, **zic** 10:30 standart saat artı 0:30 **SAVE** saatini 10:00 standart saat artı 1:00 **SAVE** değerinden ayırmaz.
 
 **LETTER/S**
-   Gives the “variable part” (for example, the “S” or “D” in “EST” or
-   “EDT”) of time zone abbreviations to be used when this rule is in
-   effect. If this field is “”, the variable part is null.
+   Bu kural geçerli olduğunda kullanılacak saat dilimi kısaltmalarının “değişken kısmını” (örneğin, “EST” veya “EDT” deki “S” veya “D”) verir. Bu alan “” ise, değişken kısım null olur.
 
-A zone line has the form
+Bölge hattı şu şekildedir
 
 ::
 
@@ -221,63 +140,28 @@ A zone line has the form
 
    Zone	Asia/Amman	2:00	Jordan	EE%sT	2017 Oct 27 01:00
 
-The fields that make up a zone line are:
+Bir bölge çizgisini oluşturan alanlar şunlardır:
 
 **NAME**
-   The name of the timezone. This is the name used in creating the time
-   conversion information file for the timezone. It should not contain a
-   file name component “.” or “..”; a file name component is a maximal
-   substring that does not contain “/”.
+   Saat diliminin adı. Bu, saat dilimi için zaman dönüştürme bilgi dosyasını oluştururken kullanılan addır. Bir dosya adı bileşeni “.” İçermemelidir. veya “..”; bir dosya adı bileşeni, “/” içermeyen maksimum bir alt dizedir.
 
 **UTOFF**
-   The amount of time to add to UT to get standard time. This field has
-   the same format as the **AT** and **SAVE** fields of rule lines;
-   begin the field with a minus sign if time must be subtracted from UT.
+   Standart zamanı elde etmek için UT'ye eklenecek süre. Bu alan, kural satırlarının **AT** ve **SAVE** alanlarıyla aynı biçime sahiptir; UT'den zaman çıkarılması gerekiyorsa alana eksi işareti ile başlayın.
 
 **RULES**
-   The name of the rules that apply in the timezone or, alternatively, a
-   field in the same format as a rule-line SAVE column, giving of the
-   amount of time to be added to local standard time effect, and whether
-   the resulting time is standard or daylight saving. If this field is
-   then standard time always applies. When an amount of time is given,
-   only the sum of standard time and this amount matters.
+   Saat diliminde veya alternatif olarak, kural satırı KAYDET sütunuyla aynı formatta geçerli olan ve yerel standart zaman efektine eklenecek süreyi ve sonuçta ortaya çıkan sürenin standart olup olmadığını belirleyen kuralların adı veya gün ışığından yararlanma. Bu alan varsa, standart zaman her zaman geçerlidir. Bir süre verildiğinde, sadece standart sürenin toplamı ve bu miktar önemlidir.
 
 **FORMAT**
-   The format for time zone abbreviations. The pair of characters **%s**
-   is used to show where the “variable part” of the time zone
-   abbreviation goes. Alternatively, a format can use the pair of
-   characters **%z** to stand for the UT offset in the form ±\ *hh*,
-   ±\ *hhmm*, or ±\ *hhmmss*, using the shortest form that does not lose
-   information, where *hh*, *mm*, and *ss* are the hours, minutes, and
-   seconds east (+) or west (−) of UT. Alternatively, a slash (/)
-   separates standard and daylight abbreviations. To conform to POSIX, a
-   time zone abbreviation should contain only alphanumeric ASCII
-   characters, “+” and “”.
+   Saat dilimi kısaltmalarının biçimi. **%S** karakter çifti, saat dilimi kısaltmasının “değişken kısmı” nın nereye gittiğini göstermek için kullanılır. Alternatif olarak, bir format **%z** çiftini UT kayması için ± *hh*, ± *hhmm* veya ± *hhmmss* biçiminde, *hh*, *mm* ve *ss*'nin bilgi kaybetmeyen en kısa formu kullanarak UT'nin doğusundaki (+) veya batı (-) saat, dakika ve saniye. Alternatif olarak, bir eğik çizgi (/), standart ve gün ışığı kısaltmalarını ayırır. POSIX ile uyumlu olmak için, bir saat dilimi kısaltmasında yalnızca alfasayısal ASCII karakterleri, “+” ve “” bulunmalıdır.
 
 **UNTIL**
-   The time at which the UT offset or the rule(s) change for a location.
-   It takes the form of YEAR [MONTH [DAY [TIME]]]. If this is specified,
-   the time zone information is generated from the given UT offset and
-   rule change until the time specified, which is interpreted using the
-   rules in effect just before the transition. The month, day, and time
-   of day have the same format as the IN, ON, and AT fields of a rule;
-   trailing fields can be omitted, and default to the earliest possible
-   value for the missing fields.
+   Bir konum için UT ofsetinin veya kural (lar) ın değiştiği zaman. YEAR [AY [GÜN [TIME]]] şeklindedir. Bu belirtilirse, zaman dilimi bilgisi verilen UT ofsetinden oluşturulur ve kural, belirtilen zamana kadar değişir; bu, geçişten hemen önce geçerli kurallar kullanılarak yorumlanır. Ay, gün ve günün saati, bir kuralın IN, ON ve AT alanlarıyla aynı biçime sahiptir; sondaki alanlar atlanabilir ve eksik alanlar için varsayılan olarak mümkün olan en erken değer olabilir.
 
-   The next line must be a “continuation” line; this has the same form
-   as a zone line except that the string “Zone” and the name are
-   omitted, as the continuation line will place information starting at
-   the time specified as the “until” information in the previous line in
-   the file used by the previous line. Continuation lines may contain
-   “until” information, just as zone lines do, indicating that the next
-   line is a further continuation.
+   Bir sonraki satır bir “devam” satırı olmalıdır; bu, bölge çizgisi ile aynı forma sahiptir, ancak "Bölge" dizesi ve adın çıkarılması, devam çizgisi, tarafından kullanılan dosyada önceki satırda "bitiş" bilgisi olarak belirtilen saatten itibaren bilgi yerleştireceğinden önceki satır. Devam çizgileri, tıpkı bölge çizgilerinin yaptığı gibi, bir sonraki çizginin başka bir devam olduğunu belirten “bitiş” bilgisini içerebilir.
 
-If a zone changes at the same instant that a rule would otherwise take
-effect in the earlier zone or continuation line, the rule is ignored. In
-a single zone it is an error if two rules take effect at the same
-instant, or if two zone changes take effect at the same instant.
+Bir bölge aynı anda bir kuralın önceki bölgede veya devam çizgisinde etkili olacağı şekilde değişirse, kural yoksayılır. Tek bir bölgede, aynı anda iki kuralın geçerli olması veya aynı anda iki bölge değişikliğinin geçerli olması bir hatadır.
 
-A link line has the form
+Bir bağlantı satırı şu forma sahiptir
 
 ::
 
@@ -287,16 +171,11 @@ A link line has the form
 
    Link	Europe/Istanbul	Asia/Istanbul
 
-The **TARGET** field should appear as the **NAME** field in some zone
-line. The **LINK-NAME** field is used as an alternative name for that
-zone; it has the same syntax as a zone line's **NAME** field.
+**TARGET** alanı, bazı bölge satırlarında **NAME** alanı olarak görünmelidir. **LINK-NAME** alanı o bölge için alternatif bir ad olarak kullanılır; bir bölge çizgisinin **NAME** alanı ile aynı sözdizimine sahiptir.
 
-Except for continuation lines, lines may appear in any order in the
-input. However, the behavior is unspecified if multiple zone or link
-lines define the same name, or if the source of one link line is the
-target of another.
+Devam çizgileri dışında, girdilerdeki sırada herhangi bir sırada çizgiler görünebilir. Ancak, birden çok bölge veya bağlantı satırı aynı adı tanımlarsa veya bir bağlantı satırının kaynağı diğerinin hedefi ise davranış belirtilmez.
 
-Lines in the file that describes leap seconds have the following form:
+Dosyadaki artık saniyeleri açıklayan satırlar aşağıdaki forma sahiptir:
 
 ::
 
@@ -307,21 +186,13 @@ Lines in the file that describes leap seconds have the following form:
 
    Leap	2016	Dec	31	23:59:60	+	S
 
-The **YEAR**, **MONTH**, **DAY**, and **HH:MM:SS** fields tell when the
-leap second happened. The **CORR** field should be “+” if a second was
-added or “” if a second was skipped. The **R/S** field should be (an
-abbreviation of) “Stationary” if the leap second time given by the other
-fields should be interpreted as UTC or (an abbreviation of) “Rolling” if
-the leap second time given by the other fields should be interpreted as
-local wall clock time.
+**YEAR**, **MONTH**, **DAY**, ve **HH:MM:SS** alanları artık saniye ne zaman gerçekleştiğini söyler. Bir saniye eklenirse CORR alanı “+” veya bir saniye atlanırsa “” olmalıdır. **R/S** alanı, diğer alanlar tarafından verilen artık ikinci kez UTC olarak yorumlanmalı veya (bir kısaltma) “alan” ise, diğer alanlar tarafından verilen ikinci saniye ise "Yuvarlanmalı" olmalıdır. yerel duvar saati zamanı olarak yorumlanabilir.
 
-EXTENDED EXAMPLE
-================
+GENİŞLETİLMİŞ ÖRNEK
+===================
 
-| Here is an extended example of **zic** input, intended to illustrate
-  many of its features. In this example, the EU rules are for the
-  European Union and for its predecessor organization, the European
-  Communities.
+| Burada, özelliklerinin çoğunu göstermesi amaçlanan geniş bir zic girişi örneği. Bu örnekte, AB kuralları Avrupa Birliği ve selefi Avrupa Toplulukları içindir.
+
 
 ::
 
@@ -345,54 +216,30 @@ EXTENDED EXAMPLE
 
    Link	Europe/Zurich	Europe/Vaduz
 
-In this example, the timezone is named Europe/Zurich but it has an alias
-as Europe/Vaduz. This example says that Zurich was 34 minutes and 8
-seconds east of UT until 1853-07-16 at 00:00, when the legal offset was
-changed to 7° 26′ 22.50″; although this works out to 0:29:45.50, the
-input format cannot represent fractional seconds so it is rounded here.
-After 1894-06-01 at 00:00 the UT offset became one hour and Swiss
-daylight saving rules (defined with lines beginning with “Rule Swiss”)
-apply. From 1981 to the present, EU daylight saving rules have applied,
-and the UTC offset has remained at one hour.
+Bu örnekte, saat dilimi Europe / Zurich olarak adlandırılmıştır ancak Europe / Vaduz olarak takma adı vardır. Bu örnek, Zürih'in yasal ofset 7 ° 26 ′ 22,50 changed olarak değiştirildiği 00: 00'da 1853-07-16 tarihine kadar UT'nin 34 dakika 8 saniye doğusunda olduğunu; Bu 0: 29: 45.50 olarak çalışsa da, giriş biçimi kesirli saniyeleri temsil edemez, bu nedenle burada yuvarlanır. 1894-06-01 saat 00: 00'dan sonra UT ofseti bir saat oldu ve İsviçre yaz saati kuralları (“Kural Swiss” ile başlayan satırlarla tanımlanır) uygulanır. 1981'den günümüze AB gün ışığından yararlanma kuralları uygulandı ve UTC dengesi bir saatte kaldı.
 
-In 1941 and 1942, daylight saving time applied from the first Monday in
-May at 01:00 to the first Monday in October at 02:00. The pre-1981 EU
-daylight-saving rules have no effect here, but are included for
-completeness. Since 1981, daylight saving has begun on the last Sunday
-in March at 01:00 UTC. Until 1995 it ended the last Sunday in September
-at 01:00 UTC, but this changed to the last Sunday in October starting in
-1996.
+1941 ve 1942'de, gün ışığından yararlanma saati Mayıs ayının ilk Pazartesi günü saat 01: 00'den Ekim ayının ilk Pazartesi günü saat 02: 00'ye kadar geçerlidir. 1981 öncesi AB gün ışığından yararlanma kurallarının burada bir etkisi yoktur, ancak bütünlük için dahil edilmiştir. 1981'den bu yana, gün ışığından yararlanma Mart ayının son Pazar günü saat 01: 00'de başladı. 1995'e kadar Eylül ayının son Pazar günü 01:00 UTC'de sona erdi, ancak bu 1996'da başlayan Ekim ayının son Pazar gününe dönüştü.
 
-For purposes of display, “LMT” and “BMT” were initially used,
-respectively. Since Swiss rules and later EU rules were applied, the
-time zone abbreviation has been CET for standard time and CEST for
-daylight saving time.
+Görüntüleme amacıyla, başlangıçta sırasıyla “LMT” ve “BMT” kullanılmıştır. İsviçre kuralları ve daha sonra AB kuralları uygulandığından, zaman dilimi kısaltması standart zaman için CET ve yaz saati için CEST olmuştur.
 
-FILES
-=====
-
-*/etc/localtime*
-   Default local timezone file.
-
-*/usr/share/zoneinfo*
-   Default timezone information directory.
-
-NOTES
-=====
-
-For areas with more than two types of local time, you may need to use
-local standard time in the **AT** field of the earliest transition
-time's rule to ensure that the earliest transition time recorded in the
-compiled file is correct.
-
-If, for a particular timezone, a clock advance caused by the start of
-daylight saving coincides with and is equal to a clock retreat caused by
-a change in UT offset, **zic** produces a single transition to daylight
-saving at the new UT offset (without any change in wall clock time). To
-get separate transitions use multiple zone continuation lines specifying
-transition instants using universal time.
-
-SEE ALSO
+DOSYALAR
 ========
 
+*/etc/localtime*
+   Varsayılan yerel saat dilimi dosyası.
+
+*/usr/share/zoneinfo*
+   Varsayılan saat dilimi bilgi dizini.
+
+NOTLAR
+======
+
+İkiden fazla yerel saat türüne sahip alanlar için, derlenen dosyaya kaydedilen en erken geçiş süresinin doğru olduğundan emin olmak için en erken geçiş süresi kuralının **AT** alanında yerel standart saati kullanmanız gerekebilir.
+
+Belirli bir saat diliminde, gün ışığından yararlanma işleminin başlamasının neden olduğu bir saat ilerlemesi çakışıyorsa ve UT ofsetindeki bir değişikliğin neden olduğu bir saat geri çekilmesine eşitse, **zic** yeni UT ofsetinde (hiç olmadan duvar saati zaman değişikliği). Ayrı geçişler elde etmek için, evrensel zamanı kullanarak geçiş örneklerini belirten çoklu bölge devam çizgilerini kullanın.
+
+AYRICA BAKINIZ
+==============
+
 **tzfile**\ (5), **zdump**\ (8)
+s

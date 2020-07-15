@@ -1,104 +1,54 @@
-NAME
+ADI
+===
+
+zdump - saat dilimi damperi
+
+ÖZET
 ====
 
-zdump - timezone dumper
+**zdump** [ *seçenek* ... ] [ *saat dilimi* ... ]
 
-SYNOPSIS
+AÇIKLAMA
 ========
 
-**zdump** [ *option* ... ] [ *timezone* ... ]
+**Zdump** programı, komut satırında belirtilen her *saat diliminde* geçerli saati yazdırır.
 
-DESCRIPTION
-===========
-
-The **zdump** program prints the current time in each *timezone* named
-on the command line.
-
-OPTIONS
-=======
+SEÇENEKLER
+==========
 
 **version**
-   Output version information and exit.
+   Çıktı sürüm bilgisi ve çıkış.
 
 **help**
-   Output short usage message and exit.
+   Kısa kullanım mesajı çıktısı ve çıkışı.
 
 **i**
-   Output a description of time intervals. For each *timezone* on the
-   command line, output an interval-format description of the timezone.
-   See “INTERVAL FORMAT” below.
+   Zaman aralıklarının bir açıklamasını çıktılar. Komut satırındaki her bir saat dilimi için, *saat diliminin* aralık biçimli bir açıklamasını girin. Aşağıdaki “INTERVAL FORMAT” na bakın.
 
 **v**
-   Output a verbose description of time intervals. For each *timezone*
-   on the command line, print the time at the lowest possible time
-   value, the time one day after the lowest possible time value, the
-   times both one second before and exactly at each detected time
-   discontinuity, the time at one day less than the highest possible
-   time value, and the time at the highest possible time value. Each
-   line is followed by **isdst=**\ *D* where *D* is positive, zero, or
-   negative depending on whether the given time is daylight saving time,
-   standard time, or an unknown time type, respectively. Each line is
-   also followed by **gmtoff=**\ *N* if the given local time is known to
-   be *N* seconds east of Greenwich.
+   Zaman aralıklarının ayrıntılı bir açıklamasını yazın. Komut satırındaki her *saat dilimi* için, zamanı mümkün olan en düşük zaman değerinde, mümkün olan en düşük zaman değerinden bir gün sonra, hem algılanan her zaman süresinden bir saniye önce tam olarak hem de tam olarak mümkün olan en yüksek zaman değeri ve mümkün olan en yüksek zaman değerindeki zaman. Her satırı, verilen zamanın sırasıyla yaz saati uygulaması, standart saat veya bilinmeyen bir saat türü olmasına bağlı olarak, D'nin pozitif, sıfır veya negatif olduğu **isdst=**\ D gelir. Verilen yerel saatin Greenwich'in N saniye doğusunda olduğu biliniyorsa, her satırı **gmtoff=**\ N takip eder.
 
 **V**
-   Like **v**, except omit the times relative to the extreme time
-   values. This generates output that is easier to compare to that of
-   implementations with different time representations.
+   **V** gibi, hariç zamanları aşırı zaman değerlerine göre atlayın. Bu, farklı zaman gösterimlerine sahip uygulamalarınkine kıyasla daha kolay çıktı üretir.
 
 **c**\ *[loyear*\ **,**\ *]\ hiyear*
-   Cut off interval output at the given year(s). Cutoff times are
-   computed using the proleptic Gregorian calendar with year 0 and with
-   Universal Time (UT) ignoring leap seconds. Cutoffs are at the start
-   of each year, where the lower-bound timestamp is exclusive and the
-   upper is inclusive; for example, **c 1970,2070** selects transitions
-   after 1970-01-01 00:00:00 UTC and on or before 2070-01-01 00:00:00
-   UTC. The default cutoff is **500,2500**.
+   Verilen yıl (lar) da aralık çıktısını kesin. Kesim süreleri, 0 yılı olan ve Evrensel Zaman (UT) artık saniye göz ardı edilen proleptik Gregoryen takvimi kullanılarak hesaplanır. Kesikler her yılın başında, alt sınır zaman damgasının özel olduğu ve üst kısmın dahil olduğu; örneğin, **c 1970,2070**, 1970-01-01 00:00:00 UTC'den sonra ve 2070-01-01 00:00:00 UTC'den önce veya önce geçişleri seçer. Varsayılan kesme **500,2500**'dür.
 
 **t**\ *[lotime*\ **,**\ *]\ hitime*
-   Cut off interval output at the given time(s), given in decimal
-   seconds since 1970-01-01 00:00:00 Coordinated Universal Time (UTC).
-   The *timezone* determines whether the count includes leap seconds. As
-   with **c**, the cutoff's lower bound is exclusive and its upper bound
-   is inclusive.
+   1970-01-01 00:00:00 Koordineli Evrensel Zaman'dan (UTC) bu yana ondalık saniye cinsinden verilen belirli zaman (lar) da aralık çıktısını kesin. Saat dilimi, sayının artık saniye içerip içermediğini belirler. **C**'de olduğu gibi, kesimin alt sınırı özeldir ve üst sınırı kapsayıcıdır.
 
-INTERVAL FORMAT
-===============
+ARALIK FORMATI
+==============
 
-The interval format is a compact text representation that is intended to
-be both human- and machine-readable. It consists of an empty line, then
-a line “TZ=\ *string”* where *string* is a double-quoted string giving
-the timezone, a second line “ *interval”* describing the time interval
-before the first transition if any, and zero or more following lines
-“\ *date time interval”,* one line for each transition time and
-following interval. Fields are separated by single tabs.
+Aralık biçimi, hem insan hem de makine tarafından okunabilir olması amaçlanan kompakt bir metin temsilidir. Boş bir satır, sonra dizenin saat dilimini veren çift tırnaklı bir dize, varsa ilk geçişten önceki zaman aralığını açıklayan ikinci bir satır ve sıfır veya daha fazla satırdan oluşan "TZ = *string*" satırından oluşur. “*Tarih zaman aralığı*”, her geçiş zamanı ve sonraki aralık için bir satır. Alanlar tek sekmelerle ayrılır.
 
-Dates are in *yyyy*-*mm*-*dd* format and times are in 24-hour
-*hh*:*mm*:*ss* format where *hh*\ <24. Times are in local time
-immediately after the transition. A time interval description consists
-of a UT offset in signed ±\ *hhmmss* format, a time zone abbreviation,
-and an isdst flag. An abbreviation that equals the UT offset is omitted;
-other abbreviations are double-quoted strings unless they consist of one
-or more alphabetic characters. An isdst flag is omitted for standard
-time, and otherwise is a decimal integer that is unsigned and positive
-(typically 1) for daylight saving time and negative for unknown.
+Tarihler *yyyy-aa-gg* biçimindedir ve süreler 24 saat *hh*:*mm*:*ss* biçimindedir, burada *hh*\ <24. Geçişten hemen sonra saatler yerel saattedir. Bir zaman aralığı açıklaması imzalı ± *hhmmss* biçiminde bir UT ofsetinden, bir zaman dilimi kısaltmasından ve bir isdst işaretinden oluşur. UT ofsetine eşit olan bir kısaltma atlanmıştır; diğer kısaltmalar, bir veya daha fazla alfabetik karakter içermedikçe çift tırnaklı dizelerdir. Standart bir süre için bir isdst işareti atlanır ve aksi halde, yaz saati için imzasız ve pozitif (genellikle 1) ve bilinmeyen için negatif olan bir ondalık sayıdır.
 
-In times and in UT offsets with absolute value less than 100 hours, the
-seconds are omitted if they are zero, and the minutes are also omitted
-if they are also zero. Positive UT offsets are east of Greenwich. The UT
-offset 00 denotes a UT placeholder in areas where the actual offset is
-unspecified; by convention, this occurs when the UT offset is zero and
-the time zone abbreviation begins with “” or is “zzz”.
+Zamanlarda ve mutlak değeri 100 saatten az olan UT ofsetlerinde, saniyeler sıfırlarsa, sıfırlarsa dakikalar da çıkarılır. Pozitif UT ofsetleri Greenwich'in doğusundadır. UT ofseti 00, gerçek ofsetin belirtilmediği alanlarda bir UT yer tutucusunu belirtir; geleneksel olarak, UT ofseti sıfır olduğunda ve saat dilimi kısaltması “” ile başladığında veya “zzz” olduğunda bu gerçekleşir.
 
-In double-quoted strings, escape sequences represent unusual characters.
-The escape sequences are \\s for space, and \\", \\\, \\f, \\n, \\r,
-\\t, and \\v with their usual meaning in the C programming language.
-E.g., the double-quoted string “"CET\s\"\\"” represents the character
-sequence “CET "\”.
+Çift tırnaklı dizelerde, çıkış dizileri olağandışı karakterleri temsil eder. Kaçış dizileri boşluk için \s ve C programlama dilinde olağan anlamları olan \ ", \, \f, \n, \r, \t ve \v şeklindedir. Örneğin, çift tırnaklı" "CET'ler dizesi "\" "," CET "" karakter dizisini temsil eder.
 
-Here is an example of the output, with the leading empty line omitted.
-(This example is shown with tab stops set far enough apart so that the
-tabbed columns line up.)
+Burada, önde gelen boş satır atlanmış olarak çıktıya bir örnek verilmiştir. (Bu örnek, sekmeli sütunlar hizalanacak şekilde birbirinden yeterince ayrılmış sekme duraklarıyla gösterilmiştir.)
 
 ::
 
@@ -113,18 +63,9 @@ tabbed columns line up.)
    1945-09-30	01	-1030	HST
    1947-06-08	02:30	-10	HST
 
-Here, local time begins 10 hours, 31 minutes and 26 seconds west of UT,
-and is a standard time abbreviated LMT. Immediately after the first
-transition, the date is 1896-01-13 and the time is 12:01:26, and the
-following time interval is 10.5 hours west of UT, a standard time
-abbreviated HST. Immediately after the second transition, the date is
-1933-04-30 and the time is 03:00:00 and the following time interval is
-9.5 hours west of UT, is abbreviated HDT, and is daylight saving time.
-Immediately after the last transition the date is 1947-06-08 and the
-time is 02:30:00, and the following time interval is 10 hours west of
-UT, a standard time abbreviated HST.
+Burada yerel saat UT 10 saat, 31 dakika ve 26 saniye batısında başlar ve standart bir zaman kısaltılmış LMT. İlk geçişten hemen sonra, tarih 1896-01-13 ve saat 12:01:26'dır ve aşağıdaki zaman aralığı standart bir zaman dilimi HST olarak kısaltılmış UT'nin 10.5 saat batısındadır. İkinci geçişten hemen sonra, tarih 1933-04-30 ve saat 03:00:00 ve aşağıdaki zaman aralığı UT'nin 9.5 saat batısındadır, HDT olarak kısaltılmıştır ve yaz saati uygulamasıdır. Son geçişten hemen sonra tarih 1947-06-08'dir ve saat 02:30:00'dir ve aşağıdaki zaman aralığı, standart bir saat HST olarak kısaltılmış UT'nin 10 saat batısındadır.
 
-Here are excerpts from another example:
+İşte başka bir örnekten alıntılar:
 
 ::
 
@@ -139,25 +80,16 @@ Here are excerpts from another example:
    2014-10-26	01	+03
    2016-03-27	03	+04
 
-This time zone is east of UT, so its UT offsets are positive. Also, many
-of its time zone abbreviations are omitted since they duplicate the text
-of the UT offset.
+Bu zaman dilimi UT'nin doğusudur, bu yüzden UT ofsetleri pozitiftir. Ayrıca, zaman dilimi kısaltmalarının birçoğu UT ofsetinin metnini çoğalttığından çıkarılır.
 
-LIMITATIONS
-===========
+SINIRLAMA
+=========
 
-Time discontinuities are found by sampling the results returned by
-localtime at twelve-hour intervals. This works in all real-world cases;
-one can construct artificial time zones for which this fails.
+Zaman süreksizlikleri, yerel saate göre döndürülen sonuçların on iki saatlik aralıklarla örneklenmesi ile bulunur. Bu, tüm gerçek dünyadaki durumlarda işe yarar; bunun başarısız olduğu yapay zaman dilimleri yapılabilir.
 
-In the **v** and **V** output, “UT” denotes the value returned by
-**gmtime**\ (3), which uses UTC for modern timestamps and some other UT
-flavor for timestamps that predate the introduction of UTC. No attempt
-is currently made to have the output use “UTC” for newer and “UT” for
-older timestamps, partly because the exact date of the introduction of
-UTC is problematic.
+**V** ve **V** çıkışında “UT”, modern zaman damgaları için UTC ve UTC'nin girişinden önceki zaman damgaları için başka bir UT aroması kullanan **gmtime**\ (3) tarafından döndürülen değeri ifade eder. Şu anda çıktının daha yeni için "UTC" ve daha eski zaman damgaları için "UT" kullanması için hiçbir girişimde bulunulmamıştır, çünkü kısmen UTC'nin giriş tarihi sorunludur.
 
-SEE ALSO
-========
+AYRICA BAKINIZ
+==============
 
 **tzfile**\ (5), **zic**\ (8)
